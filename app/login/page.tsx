@@ -20,15 +20,19 @@ export default function LoginPage() {
             const res = await api.post('/auth/login', { email, password });
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data));
-            // Redirect to dashboard (to be created)
-            router.push('/dashboard');
+
+            if (res.data.role === 'admin') {
+                router.push('/dashboard/select-store');
+            } else {
+                router.push('/dashboard');
+            }
         } catch (err: any) {
             setError(err.response?.data?.message || 'Login failed');
         }
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-slate-950">
             <Card className="w-[350px]">
                 <CardHeader>
                     <CardTitle>POS System Login</CardTitle>

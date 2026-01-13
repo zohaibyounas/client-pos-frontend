@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import api from '@/lib/api';
 
 export default function StorePage() {
@@ -45,7 +47,13 @@ export default function StorePage() {
 
     return (
         <div className="p-8 space-y-8">
-            <Card>
+            <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold">Store Management</h1>
+                <Link href="/dashboard/select-store" className="flex items-center text-blue-600 dark:text-blue-400 hover:underline">
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Store Selection
+                </Link>
+            </div>
+            <Card className="dark:bg-slate-900 border-none shadow">
                 <CardHeader>
                     <CardTitle>Add New Store</CardTitle>
                 </CardHeader>
@@ -72,7 +80,7 @@ export default function StorePage() {
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {stores.map((store) => (
-                    <Card key={store._id}>
+                    <Card key={store._id} className="dark:bg-slate-900 border-none shadow transition-shadow hover:shadow-md">
                         <CardHeader>
                             <CardTitle>{store.name}</CardTitle>
                         </CardHeader>
