@@ -22,6 +22,7 @@ import TrendingChart from '@/components/dashboard/TrendingChart';
 
 export default function Dashboard() {
     const [stats, setStats] = useState<any>(null);
+    const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -43,12 +44,22 @@ export default function Dashboard() {
         }
     };
 
+    const fetchInventory = async () => {
+        try {
+            const res = await api.get('/products');
+            setProducts(res.data);
+        } catch (error) {
+            console.error('Failed to fetch inventory', error);
+        }
+    };
+
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
             router.push('/login');
         } else {
             fetchStats();
+            fetchInventory();
         }
     }, [router]);
 
@@ -200,6 +211,53 @@ export default function Dashboard() {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Inventory Overview Table */}
+            <Card className="dark:bg-slate-900 border-none shadow-sm">
+                <CardHeader>
+                    <CardTitle className="uppercase tracking-wider text-sm font-semibold text-slate-500 dark:text-slate-400">Inventory Status</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                            <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs font-bold">
+                                <tr>
+                                    <th className="px-4 py-3 rounded-l-lg">Product Name</th>
+                                    <th className="px-4 py-3">Barcode</th>
+                                    <th className="px-4 py-3 text-right">Stock Qty</th>
+                                    <th className="px-4 py-3 text-right">Cost Price</th>
+                                    <th className="px-4 py-3 rounded-r-lg text-right">Total Value</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                {products.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="px-4 py-8 text-center text-slate-400 italic">
+                                            No inventory data available.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    products.map((product: any) => (
+                                        <tr key={product._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                            <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{product.name}</td>
+                                            <td className="px-4 py-3 text-slate-500 font-mono text-xs">{product.barcode}</td>
+                                            <td className={`px-4 py-3 text-right font-bold ${product.totalStock <= 0 ? 'text-red-500' : 'text-slate-700 dark:text-slate-300'}`}>
+                                                {product.totalStock}
+                                            </td>
+                                            <td className="px-4 py-3 text-right text-slate-600 dark:text-slate-400">
+                                                Rs. {product.costPrice.toLocaleString()}
+                                            </td>
+                                            <td className="px-4 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400">
+                                                Rs. {(product.totalStock * product.costPrice).toLocaleString()}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }
