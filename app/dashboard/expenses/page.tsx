@@ -1,13 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { DollarSign, Plus, Trash2, Edit, Calendar, Filter, X } from 'lucide-react';
+import { DollarSign, Trash2, Edit, Calendar, X } from 'lucide-react';
 import api from '@/lib/api';
-import { cn } from '@/lib/utils';
 
 export default function ExpensePage() {
     const [expenses, setExpenses] = useState<any[]>([]);
@@ -88,110 +87,107 @@ export default function ExpensePage() {
     };
 
     return (
-        <div className="p-8 space-y-8 bg-slate-50/50 dark:bg-transparent min-h-screen">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-black uppercase tracking-tight flex items-center">
-                        <DollarSign className="mr-3 h-8 w-8 text-red-600" /> Expense Registry
+        <div className="min-h-screen space-y-8 bg-slate-50 p-6 dark:bg-slate-950 md:p-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-1">
+                    <h1 className="flex items-center gap-3 text-3xl font-bold text-slate-900 dark:text-white">
+                        <DollarSign className="h-8 w-8 text-red-600 dark:text-red-400" /> Expense Registry
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400">Monitor business overheads and miscellaneous costs.</p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3">
-                    <form className="flex items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-xl border shadow-sm" onSubmit={(e) => { e.preventDefault(); fetchExpenses(); }}>
-                        <div className="flex items-center gap-2 px-2 border-r dark:border-slate-800">
-                            <Calendar className="h-4 w-4 text-slate-400" />
-                            <Input type="date" className="border-none shadow-none focus-visible:ring-0 w-32 h-8 text-xs font-bold" value={startDate} onChange={e => setStartDate(e.target.value)} />
-                        </div>
-                        <div className="flex items-center gap-2 px-2">
-                            <Input type="date" className="border-none shadow-none focus-visible:ring-0 w-32 h-8 text-xs font-bold" value={endDate} onChange={e => setEndDate(e.target.value)} />
-                        </div>
-                        <Button size="sm" type="submit" className="h-8">Filter</Button>
-                        {(startDate || endDate) && <Button size="icon" variant="ghost" onClick={() => { setStartDate(''); setEndDate(''); fetchExpenses(); }}><X className="h-4 w-4" /></Button>}
-                    </form>
-                </div>
+                <Card className="w-full border-slate-200 dark:border-slate-800 dark:bg-slate-900 md:w-auto">
+                    <CardContent className="pt-4">
+                        <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); fetchExpenses(); }}>
+                            <div className="space-y-2">
+                                <Label htmlFor="exp-startDate" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Start Date</Label>
+                                <Input id="exp-startDate" type="date" className="h-9 w-40 dark:bg-slate-800/50 dark:border-slate-700" value={startDate} onChange={e => setStartDate(e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="exp-endDate" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">End Date</Label>
+                                <Input id="exp-endDate" type="date" className="h-9 w-40 dark:bg-slate-800/50 dark:border-slate-700" value={endDate} onChange={e => setEndDate(e.target.value)} />
+                            </div>
+                            <Button size="sm" type="submit" className="h-9 gap-2 bg-blue-600 font-semibold text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700">Filter</Button>
+                            {(startDate || endDate) && <Button type="button" size="icon" variant="ghost" className="h-9 w-9" onClick={() => { setStartDate(''); setEndDate(''); fetchExpenses(); }}><X className="h-4 w-4" /></Button>}
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
 
-            <Card className="dark:bg-slate-900 border-none shadow-xl overflow-hidden relative">
-                <div className="absolute top-0 left-0 w-1 h-full bg-red-600" />
+            <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                 <CardHeader>
-                    <CardTitle className="text-xl font-bold">{editingId ? 'Edit Entry' : 'New Expense Entry'}</CardTitle>
+                    <CardTitle className="text-slate-900 dark:text-white">{editingId ? 'Edit Entry' : 'New Expense Entry'}</CardTitle>
+                    <CardDescription className="text-slate-500 dark:text-slate-400">Add or update an expense. Required fields: title and amount.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSubmit} className="grid gap-6 md:grid-cols-5 items-end">
-                        <div className="grid gap-2">
-                            <Label htmlFor="title" className="text-xs font-black uppercase text-slate-400">Reason / Title</Label>
-                            <Input id="title" value={formData.title} onChange={handleInputChange} required className="h-11 rounded-xl" placeholder="e.g. Electricity Bill" />
+                    <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-5 md:items-end">
+                        <div className="space-y-2">
+                            <Label htmlFor="title" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Reason / Title</Label>
+                            <Input id="title" value={formData.title} onChange={handleInputChange} required className="dark:bg-slate-800/50 dark:border-slate-700" placeholder="e.g. Electricity Bill" />
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="amount" className="text-xs font-black uppercase text-slate-400">Amount (Rs.)</Label>
-                            <Input id="amount" type="number" value={formData.amount} onChange={handleInputChange} required className="h-11 rounded-xl font-black text-red-600" />
+                        <div className="space-y-2">
+                            <Label htmlFor="amount" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount (Rs.)</Label>
+                            <Input id="amount" type="number" value={formData.amount} onChange={handleInputChange} required className="dark:bg-slate-800/50 dark:border-slate-700" />
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="category" className="text-xs font-black uppercase text-slate-400">Category</Label>
-                            <Input id="category" value={formData.category} onChange={handleInputChange} placeholder="Utility, Rent, etc." className="h-11 rounded-xl" />
+                        <div className="space-y-2">
+                            <Label htmlFor="category" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Category</Label>
+                            <Input id="category" value={formData.category} onChange={handleInputChange} placeholder="Utility, Rent, etc." className="dark:bg-slate-800/50 dark:border-slate-700" />
                         </div>
-                        <div className="grid gap-2 lg:col-span-1">
-                            <Label htmlFor="description" className="text-xs font-black uppercase text-slate-400">Notes (Optional)</Label>
-                            <Input id="description" value={formData.description} onChange={handleInputChange} className="h-11 rounded-xl" />
+                        <div className="space-y-2">
+                            <Label htmlFor="description" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Notes (Optional)</Label>
+                            <Input id="description" value={formData.description} onChange={handleInputChange} className="dark:bg-slate-800/50 dark:border-slate-700" />
                         </div>
                         <div className="flex gap-2">
-                            <Button type="submit" variant="destructive" disabled={loading} className="flex-1 h-11 font-bold uppercase tracking-widest shadow-lg shadow-red-500/20">
-                                {loading ? '...' : (editingId ? 'Update' : 'Record')}
-                            </Button>
-                            {editingId && (
-                                <Button type="button" variant="outline" onClick={handleCancel} className="h-11 border-2 font-bold uppercase tracking-widest px-4">
-                                    <X className="h-5 w-5" />
-                                </Button>
-                            )}
+                            <Button type="submit" disabled={loading} className="flex-1 bg-blue-600 font-semibold text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700">{loading ? '...' : (editingId ? 'Update' : 'Record')}</Button>
+                            {editingId && <Button type="button" variant="outline" onClick={handleCancel} className="border-slate-200 dark:border-slate-700"><X className="h-5 w-5" /></Button>}
                         </div>
                     </form>
                 </CardContent>
             </Card>
 
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border dark:border-slate-800 overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-800">
-                        <tr>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">Date/Time</th>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">Title / Reason</th>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">Allocation</th>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">Net Amount</th>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400 text-right pr-10">Manage</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y dark:divide-slate-800">
-                        {expenses.length === 0 ? (
-                            <tr><td colSpan={5} className="px-6 py-20 text-center text-slate-400 font-bold uppercase tracking-widest opacity-25">No expenditure data recovered</td></tr>
-                        ) : (
-                            expenses.map((exp) => (
-                                <tr key={exp._id} className="hover:bg-red-50/50 dark:hover:bg-slate-800 transition-colors group">
-                                    <td className="px-6 py-5 text-xs text-slate-500 font-bold">
-                                        {exp.createdAt ? new Date(exp.createdAt).toLocaleString() : 'N/A'}
-                                    </td>
-                                    <td className="px-6 py-5 text-sm font-black uppercase">{exp.title}</td>
-                                    <td className="px-6 py-5 text-sm">
-                                        <span className="bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full text-[10px] font-black uppercase text-slate-600 dark:text-slate-400">{exp.category || 'GENERAL'}</span>
-                                    </td>
-                                    <td className="px-6 py-5 text-sm font-black text-red-600 dark:text-red-400 tracking-tight">
-                                        Rs. {(exp.amount ?? 0).toLocaleString()}
-                                    </td>
-                                    <td className="px-6 py-5 text-sm text-right pr-10">
-                                        <div className="flex justify-end gap-1">
-                                            <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" onClick={() => handleEdit(exp)}>
-                                                <Edit className="h-4 w-4" />
-                                            </Button>
-                                            <Button variant="ghost" size="icon" className="h-9 w-9 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" onClick={() => handleDelete(exp._id)}>
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </td>
+            <Card className="overflow-hidden border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+                <CardHeader>
+                    <CardTitle className="text-slate-900 dark:text-white">Expense History</CardTitle>
+                    <CardDescription className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Date, title and amount</CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                            <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs font-bold">
+                                <tr>
+                                    <th className="rounded-l-lg px-4 py-3">Date/Time</th>
+                                    <th className="px-4 py-3">Title / Reason</th>
+                                    <th className="px-4 py-3">Category</th>
+                                    <th className="px-4 py-3">Amount</th>
+                                    <th className="rounded-r-lg px-4 py-3 text-right">Actions</th>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                {expenses.length === 0 ? (
+                                    <tr><td colSpan={5} className="px-4 py-8 text-center italic text-slate-400">No expenditure data found.</td></tr>
+                                ) : (
+                                    expenses.map((exp) => (
+                                        <tr key={exp._id} className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                            <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{exp.createdAt ? new Date(exp.createdAt).toLocaleString() : 'N/A'}</td>
+                                            <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{exp.title}</td>
+                                            <td className="px-4 py-3">
+                                                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase text-slate-600 dark:bg-slate-800 dark:text-slate-400">{exp.category || 'GENERAL'}</span>
+                                            </td>
+                                            <td className="px-4 py-3 font-bold text-red-600 dark:text-red-400">Rs. {(exp.amount ?? 0).toLocaleString()}</td>
+                                            <td className="px-4 py-3 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-500 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400" onClick={() => handleEdit(exp)}><Edit className="h-4 w-4" /></Button>
+                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400" onClick={() => handleDelete(exp._id)}><Trash2 className="h-4 w-4" /></Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

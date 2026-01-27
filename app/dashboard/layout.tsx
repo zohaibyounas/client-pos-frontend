@@ -182,126 +182,129 @@ export default function DashboardLayout({
             isSidebarOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
-          <div className="p-6 border-b space-y-2 relative">
+          <div className="p-5 border-b border-slate-200 dark:border-slate-800 space-y-4 relative">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-blue-600 flex items-center">
-                <ShoppingCart className="mr-2" /> SANITARY POS
+              <h2 className="text-lg font-bold text-blue-600 dark:text-blue-500 flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5 shrink-0" /> SANITARY POS
               </h2>
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="md:hidden shrink-0"
                 onClick={() => setIsSidebarOpen(false)}
               >
                 <X className="h-5 w-5" />
               </Button>
             </div>
             {store && (
-              <div className="bg-blue-50 dark:bg-blue-900/30 p-2 rounded text-xs font-semibold text-blue-700 dark:text-blue-300 flex items-center justify-between">
-                <span className="truncate mr-2 uppercase">{store.name}</span>
+              <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg px-3 py-2.5 flex items-center justify-between gap-2">
+                <span className="truncate text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase">
+                  {store.name}
+                </span>
                 <Link
                   href="/dashboard/select-store"
-                  className="text-[10px] text-blue-500 hover:underline"
+                  className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline shrink-0"
                 >
                   Switch
                 </Link>
               </div>
             )}
           </div>
-          <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+          <nav className="flex-1 p-4 overflow-y-auto flex flex-col">
             {/* Section: Main System */}
-            <div className="mb-2">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2">
-                Main Navigation
+            <div className="mb-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-3 mb-2">
+                MAIN NAVIGATION
               </p>
-              {menuItems
-                .slice(0, 10)
-                .filter((item) => !item.adminOnly || isAdmin)
-                .map((item) => {
-                  const Icon = item.icon;
-                  const isActive = pathname === item.href;
-                  // Show badge for Notifications item
-                  const totalNotifications =
-                    stockNotifications.lowStock.length +
-                    stockNotifications.highStock.length;
-                  const showBadge =
-                    item.href === "/dashboard/notifications" &&
-                    totalNotifications > 0;
-
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center justify-between px-4 py-3 text-[13px] font-bold rounded-xl transition-all group mb-0.5",
-                        isActive
-                          ? "bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800",
-                      )}
-                    >
-                      <div className="flex items-center">
-                        <Icon
-                          className={cn(
-                            "mr-3 h-5 w-5",
-                            isActive
-                              ? "text-white"
-                              : "text-blue-500 group-hover:scale-110 transition-transform",
-                          )}
-                        />
-                        {item.name}
-                      </div>
-                      {showBadge && (
-                        <Badge className="bg-rose-600 text-white h-5 min-w-5 flex items-center justify-center p-0 font-black border-2 border-white shadow-sm rounded-full animate-pulse">
-                          {totalNotifications}
-                        </Badge>
-                      )}
-                    </Link>
-                  );
-                })}
-            </div>
-
-            {/* Section: Administration */}
-            {isAdmin && (
-              <div className="mt-4">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 mb-2">
-                  Management Console
-                </p>
+              <div className="space-y-0.5">
                 {menuItems
-                  .slice(10)
-                  .filter((item) => item.adminOnly)
+                  .slice(0, 10)
+                  .filter((item) => !item.adminOnly || isAdmin)
                   .map((item) => {
                     const Icon = item.icon;
                     const isActive = pathname === item.href;
+                    const totalNotifications =
+                      stockNotifications.lowStock.length +
+                      stockNotifications.highStock.length;
+                    const showBadge =
+                      item.href === "/dashboard/notifications" &&
+                      totalNotifications > 0;
+
                     return (
                       <Link
                         key={item.href}
                         href={item.href}
                         className={cn(
-                          "flex items-center justify-between px-4 py-3 text-[13px] font-bold rounded-xl transition-all group mb-0.5",
+                          "flex items-center justify-between gap-2 px-3 py-2.5 text-sm font-medium rounded-lg transition-all group",
                           isActive
-                            ? "bg-slate-900 text-white shadow-lg"
-                            : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800",
+                            ? "bg-blue-600 text-white"
+                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800",
                         )}
                       >
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-3 min-w-0">
                           <Icon
                             className={cn(
-                              "mr-3 h-5 w-5",
+                              "h-5 w-5 shrink-0",
                               isActive
                                 ? "text-white"
-                                : "text-slate-400 group-hover:text-slate-900 transition-colors",
+                                : "text-blue-600 dark:text-blue-400",
                             )}
                           />
-                          {item.name}
+                          <span className="truncate">{item.name}</span>
                         </div>
+                        {showBadge && (
+                          <Badge className="bg-rose-600 text-white h-5 min-w-5 flex items-center justify-center p-0 text-xs font-bold rounded-full shrink-0">
+                            {totalNotifications}
+                          </Badge>
+                        )}
                       </Link>
                     );
                   })}
               </div>
+            </div>
+
+            {/* Section: Administration */}
+            {isAdmin && (
+              <div className="mt-6">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-3 mb-2">
+                  MANAGEMENT CONSOLE
+                </p>
+                <div className="space-y-0.5">
+                  {menuItems
+                    .slice(10)
+                    .filter((item) => item.adminOnly)
+                    .map((item) => {
+                      const Icon = item.icon;
+                      const isActive = pathname === item.href;
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={cn(
+                            "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all group",
+                            isActive
+                              ? "bg-blue-600 text-white"
+                              : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800",
+                          )}
+                        >
+                          <Icon
+                            className={cn(
+                              "h-5 w-5 shrink-0",
+                              isActive
+                                ? "text-white"
+                                : "text-blue-600 dark:text-blue-400",
+                            )}
+                          />
+                          <span className="truncate">{item.name}</span>
+                        </Link>
+                      );
+                    })}
+                </div>
+              </div>
             )}
 
             {/* Section: App Settings */}
-            <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800">
               {menuItems
                 .filter((item) => !item.adminOnly && item.name === "Settings")
                 .map((item) => {
@@ -312,16 +315,14 @@ export default function DashboardLayout({
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex items-center justify-between px-4 py-3 text-[13px] font-bold rounded-xl transition-all group",
+                        "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all",
                         isActive
-                          ? "bg-slate-100 text-slate-900"
-                          : "text-slate-500 hover:bg-slate-50",
+                          ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
+                          : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800",
                       )}
                     >
-                      <div className="flex items-center">
-                        <Icon className="mr-3 h-4 w-4 text-slate-400 group-hover:text-slate-900 transition-colors" />
-                        {item.name}
-                      </div>
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span>{item.name}</span>
                     </Link>
                   );
                 })}

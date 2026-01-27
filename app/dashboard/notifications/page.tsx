@@ -1,23 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-    Bell,
-    AlertTriangle,
-    TrendingUp,
-    Package,
-    ChevronRight,
-    Search,
-    Filter
-} from 'lucide-react';
+import { Bell, AlertTriangle, TrendingUp, Package, Search } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import api from '@/lib/api';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
-
 export default function NotificationsPage() {
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -57,137 +47,126 @@ export default function NotificationsPage() {
 
     if (loading) {
         return (
-            <div className="p-8 flex items-center justify-center min-h-[400px]">
+            <div className="flex min-h-[60vh] items-center justify-center bg-slate-50 dark:bg-slate-950">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-slate-500 font-bold animate-pulse">Syncing system alerts...</p>
+                    <Bell className="h-8 w-8 animate-pulse text-blue-500 dark:text-blue-400" />
+                    <p className="text-slate-500 dark:text-slate-400">Syncing system alerts...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="min-h-screen space-y-8 bg-slate-50 p-6 dark:bg-slate-950 md:p-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                 <div className="space-y-1">
-                    <h1 className="text-3xl font-black tracking-tight flex items-center gap-3">
-                        <Bell className="h-8 w-8 text-blue-600" />
-                        SYSTEM NOTIFICATIONS
+                    <h1 className="flex items-center gap-3 text-3xl font-bold text-slate-900 dark:text-white">
+                        <Bell className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                        System Notifications
                     </h1>
-                    <p className="text-slate-500 font-medium">Real-time inventory intelligence and stock status alerts</p>
+                    <p className="text-slate-500 dark:text-slate-400">Real-time inventory and stock status alerts.</p>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <div className="relative w-full md:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                        <Input
-                            placeholder="Search alerts..."
-                            className="pl-10 h-11 border-2 focus:border-blue-500 rounded-xl"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                    <Button variant="outline" className="h-11 rounded-xl border-2 px-4 font-bold flex gap-2">
-                        <Filter className="h-4 w-4" /> Filter
-                    </Button>
-                </div>
+                <Card className="w-full border-slate-200 dark:border-slate-800 dark:bg-slate-900 md:w-80">
+                    <CardContent className="pt-4">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                            <Input
+                                placeholder="Search alerts..."
+                                className="pl-10 dark:bg-slate-800/50 dark:border-slate-700"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
-                {/* Critical Low Stock Section */}
-                <Card className="border-2 border-rose-100 dark:border-rose-900/30 shadow-xl shadow-rose-500/5 overflow-hidden">
-                    <CardHeader className="bg-rose-50 dark:bg-rose-950/30 border-b-2 border-rose-100 dark:border-rose-950/50 pb-6">
-                        <div className="flex items-center justify-between">
-                            <div className="p-3 bg-rose-600 rounded-2xl shadow-lg shadow-rose-600/20">
-                                <AlertTriangle className="h-6 w-6 text-white" />
+            <div className="grid gap-6 md:grid-cols-2">
+                <Card className="overflow-hidden border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+                    <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="rounded-xl bg-rose-100 p-3 dark:bg-rose-900/30">
+                                <AlertTriangle className="h-6 w-6 text-rose-600 dark:text-rose-400" />
                             </div>
-                            <Badge className="bg-rose-600 text-white font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm">
-                                {lowStockProducts.length} Items Affected
-                            </Badge>
+                            <div>
+                                <CardTitle className="text-slate-900 dark:text-white">Critical Low Stock</CardTitle>
+                                <CardDescription className="text-rose-600 dark:text-rose-400">Action required: items nearing exhaustion</CardDescription>
+                            </div>
                         </div>
-                        <div className="pt-4">
-                            <CardTitle className="text-2xl font-black text-rose-900 dark:text-rose-100 uppercase italic tracking-tight">Critical Low Stock</CardTitle>
-                            <CardDescription className="text-rose-600/80 dark:text-rose-400 font-bold">Action required: These items are nearing exhaustion</CardDescription>
-                        </div>
+                        <Badge className="bg-rose-600 text-white">{lowStockProducts.length} items</Badge>
                     </CardHeader>
                     <CardContent className="p-0">
                         {lowStockProducts.length > 0 ? (
-                            <div className="divide-y divide-rose-50 dark:divide-rose-900/20">
+                            <div className="divide-y divide-slate-100 dark:divide-slate-800">
                                 {lowStockProducts.map((product) => (
                                     <Link
                                         key={product._id}
                                         href={`/dashboard/products?search=${product.barcode}`}
-                                        className="flex items-center justify-between p-4 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-all group"
+                                        className="flex items-center justify-between px-4 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
                                     >
-                                        <div className="flex items-center gap-4">
-                                            <div className="h-12 w-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-slate-400 border-2 border-rose-100/50">
-                                                <Package className="h-6 w-6 text-rose-600 group-hover:scale-110 transition-transform" />
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
+                                                <Package className="h-5 w-5 text-rose-600 dark:text-rose-400" />
                                             </div>
                                             <div>
-                                                <p className="font-black text-rose-900 dark:text-rose-100 leading-tight group-hover:text-rose-600 transition-colors">{product.name}</p>
-                                                <p className="text-[10px] font-mono text-slate-500 uppercase">Ref: {product.barcode}</p>
+                                                <p className="font-medium text-slate-900 dark:text-white">{product.name}</p>
+                                                <p className="text-xs font-mono text-slate-500">Ref: {product.barcode}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-2xl font-black text-rose-600">{product.totalStock}</p>
-                                            <p className="text-[10px] font-black uppercase text-rose-400 tracking-tighter">Units Left</p>
+                                            <p className="font-bold text-rose-600 dark:text-rose-400">{product.totalStock}</p>
+                                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Units left</p>
                                         </div>
                                     </Link>
                                 ))}
                             </div>
                         ) : (
-                            <div className="p-12 text-center text-slate-400">
-                                <p className="font-bold italic">No critical stock levels detected.</p>
-                            </div>
+                            <div className="py-8 text-center text-slate-400">No critical stock levels detected.</div>
                         )}
                     </CardContent>
                 </Card>
 
-                {/* Healthy Product Updates Section */}
-                <Card className="border-2 border-emerald-100 dark:border-emerald-900/30 shadow-xl shadow-emerald-500/5 overflow-hidden">
-                    <CardHeader className="bg-emerald-50 dark:bg-emerald-950/30 border-b-2 border-emerald-100 dark:border-emerald-950/50 pb-6">
-                        <div className="flex items-center justify-between">
-                            <div className="p-3 bg-emerald-600 rounded-2xl shadow-lg shadow-emerald-600/20">
-                                <TrendingUp className="h-6 w-6 text-white" />
+                <Card className="overflow-hidden border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+                    <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="rounded-xl bg-emerald-100 p-3 dark:bg-emerald-900/30">
+                                <TrendingUp className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                             </div>
-                            <Badge className="bg-emerald-600 text-white font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm">
-                                {healthyStockProducts.length} Items Good
-                            </Badge>
+                            <div>
+                                <CardTitle className="text-slate-900 dark:text-white">Operational Update</CardTitle>
+                                <CardDescription className="text-emerald-600 dark:text-emerald-400">Stable supply: high availability products</CardDescription>
+                            </div>
                         </div>
-                        <div className="pt-4">
-                            <CardTitle className="text-2xl font-black text-emerald-900 dark:text-emerald-100 uppercase italic tracking-tight">Operational Update</CardTitle>
-                            <CardDescription className="text-emerald-600/80 dark:text-emerald-400 font-bold">Stable supply: High availability products</CardDescription>
-                        </div>
+                        <Badge className="bg-emerald-600 text-white">{healthyStockProducts.length} items</Badge>
                     </CardHeader>
                     <CardContent className="p-0">
                         {healthyStockProducts.length > 0 ? (
-                            <div className="divide-y divide-emerald-50 dark:divide-emerald-900/20">
+                            <div className="divide-y divide-slate-100 dark:divide-slate-800">
                                 {healthyStockProducts.map((product) => (
                                     <Link
                                         key={product._id}
                                         href={`/dashboard/products?search=${product.barcode}`}
-                                        className="flex items-center justify-between p-4 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-all group"
+                                        className="flex items-center justify-between px-4 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
                                     >
-                                        <div className="flex items-center gap-4">
-                                            <div className="h-12 w-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-slate-400 border-2 border-emerald-100/50">
-                                                <Package className="h-6 w-6 text-emerald-600 group-hover:scale-110 transition-transform" />
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
+                                                <Package className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                                             </div>
                                             <div>
-                                                <p className="font-black text-emerald-900 dark:text-emerald-100 leading-tight group-hover:text-emerald-600 transition-colors">{product.name}</p>
-                                                <p className="text-[10px] font-mono text-slate-500 uppercase">Ref: {product.barcode}</p>
+                                                <p className="font-medium text-slate-900 dark:text-white">{product.name}</p>
+                                                <p className="text-xs font-mono text-slate-500">Ref: {product.barcode}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-2xl font-black text-emerald-600">{product.totalStock}</p>
-                                            <p className="text-[10px] font-black uppercase text-emerald-400 tracking-tighter">In Stock</p>
+                                            <p className="font-bold text-emerald-600 dark:text-emerald-400">{product.totalStock}</p>
+                                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">In stock</p>
                                         </div>
                                     </Link>
                                 ))}
                             </div>
                         ) : (
-                            <div className="p-12 text-center text-slate-400">
-                                <p className="font-bold italic">No high-stock products logged.</p>
-                            </div>
+                            <div className="py-8 text-center text-slate-400">No high-stock products logged.</div>
                         )}
                     </CardContent>
                 </Card>

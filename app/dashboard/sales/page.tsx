@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -437,20 +437,21 @@ export default function POSPage() {
     if (lastInvoice) {
         return (
             <>
-                <div className="p-8 flex items-center justify-center min-h-screen bg-slate-100 dark:bg-slate-950">
-                    <Card className="w-full max-w-sm text-center p-8 shadow-2xl border-none">
-                        <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                        <h2 className="text-2xl font-bold mb-2">Sale Completed!</h2>
-                        <p className="text-slate-500 mb-6 font-mono">#{lastInvoice.invoiceId}</p>
-
-                        <div className="flex flex-col gap-3">
-                            <Button onClick={() => handlePrint(lastInvoice)} className="w-full h-12 gap-2 text-lg">
-                                <Printer className="h-5 w-5" /> Print Bill / Challan
-                            </Button>
-                            <Button onClick={() => setLastInvoice(null)} variant="outline" className="w-full h-12">
-                                Return to POS
-                            </Button>
-                        </div>
+                <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6 dark:bg-slate-950 md:p-8">
+                    <Card className="w-full max-w-sm border-slate-200 text-center dark:border-slate-800 dark:bg-slate-900">
+                        <CardContent className="pt-8">
+                            <CheckCircle className="mx-auto mb-4 h-14 w-14 text-emerald-500 dark:text-emerald-400" />
+                            <h2 className="mb-2 text-2xl font-bold text-slate-900 dark:text-white">Sale Completed!</h2>
+                            <p className="mb-6 font-mono text-slate-500 dark:text-slate-400">#{lastInvoice.invoiceId}</p>
+                            <div className="flex flex-col gap-3">
+                                <Button onClick={() => handlePrint(lastInvoice)} className="h-12 gap-2 bg-blue-600 font-semibold text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700" size="lg">
+                                    <Printer className="h-5 w-5" /> Print Bill / Challan
+                                </Button>
+                                <Button onClick={() => setLastInvoice(null)} variant="outline" className="h-12 border-slate-200 dark:border-slate-700" size="lg">
+                                    Return to POS
+                                </Button>
+                            </div>
+                        </CardContent>
                     </Card>
                 </div>
                 {renderModals()}
@@ -701,68 +702,79 @@ export default function POSPage() {
                     </div>
                 </div>
             ) : (
-                <div className="flex-1 p-8 overflow-y-auto">
-                    <div className="max-w-6xl mx-auto space-y-6">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-2xl font-black flex items-center pr-4">
-                                <History className="mr-3 h-8 w-8 text-blue-600" /> HISTORICAL DATA
-                            </h2>
+                <div className="flex-1 overflow-y-auto bg-slate-50 p-6 dark:bg-slate-950 md:p-8">
+                    <div className="mx-auto max-w-6xl space-y-6">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="space-y-1">
+                                <h2 className="flex items-center gap-3 text-2xl font-bold text-slate-900 dark:text-white">
+                                    <History className="h-8 w-8 text-blue-600 dark:text-blue-400" /> Sales History
+                                </h2>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">View and print past invoices.</p>
+                            </div>
                         </div>
 
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border dark:border-slate-800 overflow-hidden">
-                            <table className="w-full text-left">
-                                <thead className="bg-slate-50 dark:bg-slate-800/50 border-b dark:border-slate-800">
-                                    <tr>
-                                        <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">ID</th>
-                                        <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">Date</th>
-                                        <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">Customer</th>
-                                        <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">Amount</th>
-                                        <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">Status</th>
-                                        <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y dark:divide-slate-800">
-                                    {sales.length === 0 ? (
-                                        <tr><td colSpan={6} className="px-6 py-20 text-center text-slate-400 font-bold uppercase tracking-widest opacity-25">No sales found</td></tr>
-                                    ) : (
-                                        sales.map((sale) => (
-                                            <tr key={sale._id} className="hover:bg-blue-50/50 dark:hover:bg-slate-800 transition-colors group">
-                                                <td className="px-6 py-5 font-mono text-sm font-black text-blue-600">
-                                                    {sale.invoiceId}
-                                                    {sale.referenceNo && <span className="block text-[10px] text-slate-400">Ref: {sale.referenceNo}</span>}
-                                                </td>
-                                                <td className="px-6 py-5 text-xs text-slate-500 font-medium">{new Date(sale.createdAt).toLocaleString()}</td>
-                                                <td className="px-6 py-5 text-sm font-bold">
-                                                    {sale.customerName || sale.customer?.name || 'Walk-in'}
-                                                </td>
-                                                <td className="px-6 py-5 text-sm font-black text-slate-900 dark:text-white">Rs. {sale.totalAmount.toLocaleString()}</td>
-                                                <td className="px-6 py-5">
-                                                    <span className={cn(
-                                                        "px-3 py-1 rounded-full text-[9px] font-black uppercase",
-                                                        sale.paymentStatus === 'paid' ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
-                                                            sale.paymentStatus === 'partial' ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                                                                "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                                                    )}>
-                                                        {sale.paymentStatus}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-5 text-right flex justify-end gap-2">
-                                                    <Button variant="ghost" size="icon" title="Edit Details" className="h-9 w-9 text-slate-500 hover:text-blue-600 hover:bg-blue-50" onClick={() => handleEditMetadata(sale)}>
-                                                        <Pencil className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" onClick={() => handlePrint(sale)}>
-                                                        <Printer className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" onClick={() => handleVoid(sale._id)}>
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </td>
+                        <Card className="overflow-hidden border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+                            <CardHeader>
+                                <CardTitle className="text-slate-900 dark:text-white">Historical Sales Data</CardTitle>
+                                <CardDescription className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Invoice ID, customer and amount</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs font-bold">
+                                            <tr>
+                                                <th className="rounded-l-lg px-4 py-3">ID</th>
+                                                <th className="px-4 py-3">Date</th>
+                                                <th className="px-4 py-3">Customer</th>
+                                                <th className="px-4 py-3">Amount</th>
+                                                <th className="px-4 py-3">Status</th>
+                                                <th className="rounded-r-lg px-4 py-3 text-right">Actions</th>
                                             </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                            {sales.length === 0 ? (
+                                                <tr><td colSpan={6} className="px-4 py-8 text-center italic text-slate-400">No sales found.</td></tr>
+                                            ) : (
+                                                sales.map((sale) => (
+                                                    <tr key={sale._id} className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                                        <td className="px-4 py-3 font-mono text-sm font-bold text-blue-600 dark:text-blue-400">
+                                                            {sale.invoiceId}
+                                                            {sale.referenceNo && <span className="block text-[10px] font-normal text-slate-400">Ref: {sale.referenceNo}</span>}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{new Date(sale.createdAt).toLocaleString()}</td>
+                                                        <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{sale.customerName || sale.customer?.name || 'Walk-in'}</td>
+                                                        <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">Rs. {sale.totalAmount.toLocaleString()}</td>
+                                                        <td className="px-4 py-3">
+                                                            <span className={cn(
+                                                                "rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase",
+                                                                sale.paymentStatus === 'paid' ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" :
+                                                                sale.paymentStatus === 'partial' ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" :
+                                                                "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                                            )}>
+                                                                {sale.paymentStatus}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-right">
+                                                            <div className="flex justify-end gap-2">
+                                                                <Button variant="ghost" size="icon" title="Edit Details" className="h-9 w-9 text-slate-500 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400" onClick={() => handleEditMetadata(sale)}>
+                                                                    <Pencil className="h-4 w-4" />
+                                                                </Button>
+                                                                <Button variant="ghost" size="icon" className="h-9 w-9 text-blue-500 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400" onClick={() => handlePrint(sale)}>
+                                                                    <Printer className="h-4 w-4" />
+                                                                </Button>
+                                                                <Button variant="ghost" size="icon" className="h-9 w-9 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400" onClick={() => handleVoid(sale._id)}>
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             )}

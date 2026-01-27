@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Plus, Warehouse as WarehouseIcon, Trash2, Edit } from 'lucide-react';
+import { Warehouse as WarehouseIcon, Trash2, Edit, X } from 'lucide-react';
 import api from '@/lib/api';
 
 export default function WarehousePage() {
@@ -80,44 +80,50 @@ export default function WarehousePage() {
     };
 
     return (
-        <div className="p-8 space-y-8">
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold flex items-center">
-                    <WarehouseIcon className="mr-3 h-8 w-8 text-blue-600" /> Warehouse Management
-                </h1>
+        <div className="min-h-screen space-y-8 bg-slate-50 p-6 dark:bg-slate-950 md:p-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-1">
+                    <h1 className="flex items-center gap-3 text-3xl font-bold text-slate-900 dark:text-white">
+                        <WarehouseIcon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                        Warehouse Management
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400">Add and manage warehouses and storage locations.</p>
+                </div>
             </div>
 
-            <Card className="dark:bg-slate-900 border-none shadow">
-                <CardHeader>
-                    <CardTitle>{editingId ? 'Edit Warehouse' : 'Add New Warehouse'}</CardTitle>
+            <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+                <CardHeader className="flex flex-row items-start justify-between space-y-0">
+                    <div>
+                        <CardTitle className="text-slate-900 dark:text-white">{editingId ? 'Edit Warehouse' : 'Add New Warehouse'}</CardTitle>
+                        <CardDescription className="mt-1 text-slate-500 dark:text-slate-400">Name, location, contact person and phone.</CardDescription>
+                    </div>
+                    {editingId && (
+                        <Button variant="ghost" size="icon" onClick={handleCancel}><X className="h-5 w-5" /></Button>
+                    )}
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-5 items-end">
-                        <div className="grid gap-2">
-                            <Label htmlFor="name">Warehouse Name</Label>
-                            <Input id="name" value={formData.name} onChange={handleInputChange} required />
+                    <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-5 md:items-end">
+                        <div className="space-y-2">
+                            <Label htmlFor="name" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Warehouse Name</Label>
+                            <Input id="name" value={formData.name} onChange={handleInputChange} required className="dark:bg-slate-800/50 dark:border-slate-700" />
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="location">Location</Label>
-                            <Input id="location" value={formData.location} onChange={handleInputChange} />
+                        <div className="space-y-2">
+                            <Label htmlFor="location" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Location</Label>
+                            <Input id="location" value={formData.location} onChange={handleInputChange} className="dark:bg-slate-800/50 dark:border-slate-700" />
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="contactPerson">Contact Person</Label>
-                            <Input id="contactPerson" value={formData.contactPerson} onChange={handleInputChange} />
+                        <div className="space-y-2">
+                            <Label htmlFor="contactPerson" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Contact Person</Label>
+                            <Input id="contactPerson" value={formData.contactPerson} onChange={handleInputChange} className="dark:bg-slate-800/50 dark:border-slate-700" />
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="phone">Phone</Label>
-                            <Input id="phone" value={formData.phone} onChange={handleInputChange} />
+                        <div className="space-y-2">
+                            <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Phone</Label>
+                            <Input id="phone" value={formData.phone} onChange={handleInputChange} className="dark:bg-slate-800/50 dark:border-slate-700" />
                         </div>
                         <div className="flex gap-2">
-                            <Button type="submit" disabled={loading} className="flex-1">
+                            <Button type="submit" disabled={loading} className="flex-1 bg-blue-600 font-semibold text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700">
                                 {loading ? 'Saving...' : (editingId ? 'Update' : 'Create')}
                             </Button>
-                            {editingId && (
-                                <Button type="button" variant="outline" onClick={handleCancel}>
-                                    Cancel
-                                </Button>
-                            )}
+                            {editingId && <Button type="button" variant="outline" onClick={handleCancel} className="border-slate-200 dark:border-slate-700">Cancel</Button>}
                         </div>
                     </form>
                 </CardContent>
@@ -125,24 +131,18 @@ export default function WarehousePage() {
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {warehouses.map((w) => (
-                    <Card key={w._id} className="hover:shadow-lg transition-shadow">
-                        <CardHeader>
-                            <CardTitle className="flex justify-between items-center dark:text-white">
-                                {w.name}
-                                <div className="flex gap-1">
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600" onClick={() => handleEdit(w)}>
-                                        <Edit className="h-4 w-4" />
-                                    </Button>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600" onClick={() => handleDelete(w._id)}>
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </CardTitle>
+                    <Card key={w._id} className="border-slate-200 shadow-sm transition-all hover:border-blue-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-700">
+                        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+                            <CardTitle className="text-slate-900 dark:text-white">{w.name}</CardTitle>
+                            <div className="flex gap-1">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-500 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400" onClick={() => handleEdit(w)}><Edit className="h-4 w-4" /></Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400" onClick={() => handleDelete(w._id)}><Trash2 className="h-4 w-4" /></Button>
+                            </div>
                         </CardHeader>
                         <CardContent className="space-y-1 text-sm">
-                            <p><strong>Location:</strong> {w.location || 'N/A'}</p>
-                            <p><strong>Contact:</strong> {w.contactPerson || 'N/A'}</p>
-                            <p><strong>Phone:</strong> {w.phone || 'N/A'}</p>
+                            <p className="text-slate-600 dark:text-slate-400"><span className="font-bold text-slate-700 dark:text-slate-300">Location:</span> {w.location || 'N/A'}</p>
+                            <p className="text-slate-600 dark:text-slate-400"><span className="font-bold text-slate-700 dark:text-slate-300">Contact:</span> {w.contactPerson || 'N/A'}</p>
+                            <p className="text-slate-600 dark:text-slate-400"><span className="font-bold text-slate-700 dark:text-slate-300">Phone:</span> {w.phone || 'N/A'}</p>
                         </CardContent>
                     </Card>
                 ))}

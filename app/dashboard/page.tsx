@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -11,14 +17,12 @@ import {
   Package,
   DollarSign,
   ShoppingCart,
-  AlertCircle,
   Calendar,
-  ArrowUpRight,
-  ArrowDownRight,
   Filter,
 } from "lucide-react";
 import api from "@/lib/api";
 import TrendingChart from "@/components/dashboard/TrendingChart";
+import SummaryBarChart from "@/components/dashboard/SummaryBarChart";
 
 export default function Dashboard() {
   const [stats, setStats] = useState<any>(null);
@@ -68,7 +72,15 @@ export default function Dashboard() {
     fetchStats();
   };
 
-  if (loading && !stats) return <div className="p-8">Loading Dashboard...</div>;
+  if (loading && !stats)
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+          <ShoppingCart className="h-5 w-5 animate-pulse text-blue-500" />
+          <span className="font-medium">Loading dashboard...</span>
+        </div>
+      </div>
+    );
 
   const statCards = [
     {
@@ -130,9 +142,10 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="p-8 space-y-8 bg-slate-50/50 dark:bg-transparent min-h-screen">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
+    <div className="min-h-screen space-y-8 bg-slate-50 p-6 dark:bg-slate-950 md:p-8">
+      {/* Header — matches Login / Select Store */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-1">
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
             Business Intelligence
           </h1>
@@ -141,70 +154,76 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <form
-          onSubmit={handleFilter}
-          className="flex flex-wrap items-end gap-3 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border dark:border-slate-800"
-        >
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="startDate"
-              className="text-xs uppercase font-bold text-slate-400"
+        <Card className="w-full border-slate-200 dark:border-slate-800 dark:bg-slate-900 md:w-auto">
+          <CardContent className="pt-4">
+            <form
+              onSubmit={handleFilter}
+              className="flex flex-wrap items-end gap-3"
             >
-              Start Date
-            </Label>
-            <Input
-              type="date"
-              id="startDate"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="h-9 w-40"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label
-              htmlFor="endDate"
-              className="text-xs uppercase font-bold text-slate-400"
-            >
-              End Date
-            </Label>
-            <Input
-              type="date"
-              id="endDate"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="h-9 w-40"
-            />
-          </div>
-          <Button
-            type="submit"
-            size="sm"
-            variant="secondary"
-            disabled={loading}
-            className="gap-2 h-9"
-          >
-            <Filter className="h-4 w-4" /> {loading ? "..." : "Filter"}
-          </Button>
-        </form>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="startDate"
+                  className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+                >
+                  Start Date
+                </Label>
+                <Input
+                  type="date"
+                  id="startDate"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="h-9 w-40 dark:bg-slate-800/50 dark:border-slate-700"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="endDate"
+                  className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+                >
+                  End Date
+                </Label>
+                <Input
+                  type="date"
+                  id="endDate"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="h-9 w-40 dark:bg-slate-800/50 dark:border-slate-700"
+                />
+              </div>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={loading}
+                className="h-9 gap-2 bg-blue-600 font-semibold text-white shadow-sm hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+              >
+                <Filter className="h-4 w-4" /> {loading ? "..." : "Filter"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Smart Metric boxes — compact, no top line */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((card) => (
           <Card
             key={card.title}
-            className="border-none shadow-sm hover:shadow-md transition-all duration-200 dark:bg-slate-900 group"
+            className="group gap-2 border-slate-200 py-4 shadow-sm transition-all duration-200 hover:border-blue-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-700"
           >
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4 pb-1 pt-0">
+              <CardTitle className="text-[10px] font-bold uppercase leading-tight tracking-wider text-slate-500 dark:text-slate-400">
                 {card.title}
               </CardTitle>
               <div
-                className={`${card.bg} p-2 rounded-lg transition-transform group-hover:scale-110`}
+                className={`rounded-lg p-2 transition-all duration-200 ${card.bg} group-hover:bg-blue-600 dark:group-hover:bg-blue-600`}
               >
-                <card.icon className={`h-4 w-4 ${card.color}`} />
+                <card.icon
+                  className={`h-4 w-4 ${card.color} transition-colors group-hover:text-white dark:group-hover:text-white`}
+                />
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-slate-900 dark:text-white">
+            <CardContent className="px-4 pb-4 pt-0">
+              <div className="text-lg font-bold text-slate-900 dark:text-white">
                 {card.value}
               </div>
             </CardContent>
@@ -212,31 +231,57 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="lg:col-span-2 dark:bg-slate-900 border-none shadow-sm">
+      {/* Charts row: Sales & Profit Trend + Revenue Overview */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="text-slate-900 dark:text-white">
               Sales & Profit Trend
             </CardTitle>
+            <CardDescription className="text-slate-500 dark:text-slate-400">
+              Daily performance over the selected period.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {stats?.trend && stats.trend.length > 0 ? (
               <TrendingChart data={stats.trend} />
             ) : (
-              <div className="h-48 flex items-center justify-center text-slate-400 italic text-sm">
+              <div className="flex h-48 items-center justify-center text-sm italic text-slate-400">
                 Not enough data to generate trends yet.
               </div>
             )}
           </CardContent>
         </Card>
+
+        <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+          <CardHeader>
+            <CardTitle className="text-slate-900 dark:text-white">
+              Revenue Overview
+            </CardTitle>
+            <CardDescription className="text-slate-500 dark:text-slate-400">
+              Sales, purchases, expenses and profit for the selected period.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SummaryBarChart
+              totalSales={stats?.totalSales ?? 0}
+              totalPurchases={stats?.totalPurchases ?? 0}
+              totalExpenses={stats?.totalExpenses ?? 0}
+              totalProfit={stats?.totalProfit ?? 0}
+            />
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Inventory Overview Table */}
-      <Card className="dark:bg-slate-900 border-none shadow-sm">
+      {/* Inventory Overview Table — same card style */}
+      <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
         <CardHeader>
-          <CardTitle className="uppercase tracking-wider text-sm font-semibold text-slate-500 dark:text-slate-400">
+          <CardTitle className="text-slate-900 dark:text-white">
             Inventory Status
           </CardTitle>
+          <CardDescription className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            Product stock and value
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">

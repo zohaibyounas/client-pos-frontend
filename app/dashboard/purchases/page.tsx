@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -278,46 +278,48 @@ export default function PurchasePage() {
     // Modal view for details
     if (viewingPurchase) {
         return (
-            <div className="p-8 space-y-8 bg-slate-50/50 dark:bg-transparent min-h-screen">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => setViewingPurchase(null)}>
-                        <ArrowLeft className="h-6 w-6" />
-                    </Button>
-                    <h1 className="text-3xl font-black uppercase tracking-tight">Purchase Details</h1>
-                    <Button onClick={() => handlePrintPurchase(viewingPurchase)} className="ml-auto gap-2">
-                        <Printer className="h-4 w-4" /> PRINT INVOICE
+            <div className="min-h-screen space-y-8 bg-slate-50 p-6 dark:bg-slate-950 md:p-8">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-4">
+                        <Button variant="ghost" size="icon" className="border-slate-200 dark:border-slate-700" onClick={() => setViewingPurchase(null)}>
+                            <ArrowLeft className="h-5 w-5" />
+                        </Button>
+                        <div className="space-y-1">
+                            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Purchase Details</h1>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Vendor: {viewingPurchase.vendorName}</p>
+                        </div>
+                    </div>
+                    <Button onClick={() => handlePrintPurchase(viewingPurchase)} className="gap-2 bg-blue-600 font-semibold text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 shrink-0">
+                        <Printer className="h-4 w-4" /> Print Invoice
                     </Button>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left & Middle: Info and Items */}
-                    <div className="lg:col-span-2 space-y-8">
-                        <Card className="border-none shadow-sm dark:bg-slate-900">
-                            <CardHeader className="border-b dark:border-slate-800">
-                                <CardTitle className="text-xl font-bold flex items-center justify-between">
-                                    <span>Vendor: {viewingPurchase.vendorName}</span>
-                                    <span className="text-xs text-slate-400 font-mono">ID: {viewingPurchase._id}</span>
-                                </CardTitle>
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
+                    <div className="space-y-6 lg:col-span-2">
+                        <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+                            <CardHeader>
+                                <CardTitle className="text-slate-900 dark:text-white">Items</CardTitle>
+                                <CardDescription className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Product, quantity and totals</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <table className="w-full text-left">
-                                    <thead className="bg-slate-50 dark:bg-slate-800/50 uppercase text-[10px] font-black tracking-widest text-slate-400">
+                                <table className="w-full text-left text-sm">
+                                    <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs font-bold">
                                         <tr>
-                                            <th className="px-6 py-4">Product</th>
-                                            <th className="px-6 py-4">Quantity</th>
-                                            <th className="px-6 py-4">Cost Price</th>
-                                            <th className="px-6 py-4 text-right">Total</th>
+                                            <th className="px-4 py-3">Product</th>
+                                            <th className="px-4 py-3">Quantity</th>
+                                            <th className="px-4 py-3">Cost Price</th>
+                                            <th className="px-4 py-3 text-right">Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y dark:divide-slate-800">
+                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                         {viewingPurchase.items?.map((item: any, idx: number) => {
                                             const prod = products.find(p => p._id === item.product);
                                             return (
-                                                <tr key={idx}>
-                                                    <td className="px-6 py-4 font-bold">{prod?.name || 'Unknown'}</td>
-                                                    <td className="px-6 py-4">{item.quantity}</td>
-                                                    <td className="px-6 py-4">Rs. {item.costPrice}</td>
-                                                    <td className="px-6 py-4 text-right font-black">Rs. {item.total}</td>
+                                                <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                    <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{prod?.name || 'Unknown'}</td>
+                                                    <td className="px-4 py-3 text-slate-600 dark:text-slate-400">{item.quantity}</td>
+                                                    <td className="px-4 py-3 text-slate-600 dark:text-slate-400">Rs. {item.costPrice}</td>
+                                                    <td className="px-4 py-3 text-right font-bold text-slate-900 dark:text-white">Rs. {item.total}</td>
                                                 </tr>
                                             );
                                         })}
@@ -326,9 +328,10 @@ export default function PurchasePage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="border-none shadow-sm dark:bg-slate-900">
+                        <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                             <CardHeader>
-                                <CardTitle className="text-lg font-bold">Payment History</CardTitle>
+                                <CardTitle className="text-slate-900 dark:text-white">Payment History</CardTitle>
+                                <CardDescription className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Installments and status</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
@@ -356,9 +359,8 @@ export default function PurchasePage() {
                         </Card>
                     </div>
 
-                    {/* Right Side: Stats, Action, and Image */}
-                    <div className="space-y-8">
-                        <Card className="border-none shadow-lg bg-blue-600 text-white">
+                    <div className="space-y-6">
+                        <Card className="border-slate-200 bg-blue-600 dark:border-blue-700 dark:bg-blue-600">
                             <CardContent className="p-6 space-y-4">
                                 <div>
                                     <p className="text-blue-100 text-xs font-bold uppercase tracking-widest">Total Amount</p>
@@ -380,33 +382,27 @@ export default function PurchasePage() {
                         </Card>
 
                         {viewingPurchase.balance > 0 && (
-                            <Card className="border-none shadow-sm dark:bg-slate-900">
+                            <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                                 <CardHeader>
-                                    <CardTitle className="text-lg font-bold">Add Payment</CardTitle>
+                                    <CardTitle className="text-slate-900 dark:text-white">Add Payment</CardTitle>
+                                    <CardDescription className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Record installment</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <form onSubmit={handleAddPayment} className="space-y-4">
                                         <div className="space-y-2">
-                                            <Label htmlFor="payAmount">Amount to Pay (Rs.)</Label>
-                                            <Input
-                                                id="payAmount"
-                                                type="number"
-                                                max={viewingPurchase.balance}
-                                                value={paymentAmount}
-                                                onChange={e => setPaymentAmount(e.target.value)}
-                                                required
-                                            />
+                                            <Label htmlFor="payAmount" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Amount to Pay (Rs.)</Label>
+                                            <Input id="payAmount" type="number" max={viewingPurchase.balance} value={paymentAmount} onChange={e => setPaymentAmount(e.target.value)} className="dark:bg-slate-800/50 dark:border-slate-700" required />
                                         </div>
-                                        <Button type="submit" className="w-full">Update Balance</Button>
+                                        <Button type="submit" className="w-full bg-blue-600 font-semibold text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700">Update Balance</Button>
                                     </form>
                                 </CardContent>
                             </Card>
                         )}
 
                         {viewingPurchase.billImage && (
-                            <Card className="border-none shadow-sm dark:bg-slate-900 overflow-hidden">
+                            <Card className="overflow-hidden border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                                 <CardHeader>
-                                    <CardTitle className="text-lg font-bold flex items-center gap-2">
+                                    <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
                                         <ImageIcon className="h-5 w-5" /> Bill Invoice
                                     </CardTitle>
                                 </CardHeader>
@@ -427,55 +423,60 @@ export default function PurchasePage() {
     }
 
     return (
-        <div className="p-8 space-y-8 bg-slate-50/50 dark:bg-transparent min-h-screen">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-black uppercase tracking-tight flex items-center">
-                        <CreditCard className="mr-3 h-8 w-8 text-blue-600" /> Purchase Ledger
+        <div className="min-h-screen space-y-8 bg-slate-50 p-6 dark:bg-slate-950 md:p-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-1">
+                    <h1 className="flex items-center gap-3 text-3xl font-bold text-slate-900 dark:text-white">
+                        <CreditCard className="h-8 w-8 text-blue-600 dark:text-blue-400" /> Purchase Ledger
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400">Track vendor shipments and historical payments.</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
-                    <form className="flex items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-xl border shadow-sm" onSubmit={(e) => { e.preventDefault(); fetchPurchases(); }}>
-                        <div className="flex items-center gap-2 px-2 border-r dark:border-slate-800">
-                            <Calendar className="h-4 w-4 text-slate-400" />
-                            <Input type="date" className="border-none shadow-none focus-visible:ring-0 w-32 h-8 text-xs font-bold" value={startDate} onChange={e => setStartDate(e.target.value)} />
-                        </div>
-                        <div className="flex items-center gap-2 px-2">
-                            <Input type="date" className="border-none shadow-none focus-visible:ring-0 w-32 h-8 text-xs font-bold" value={endDate} onChange={e => setEndDate(e.target.value)} />
-                        </div>
-                        <Button size="sm" type="submit" className="h-8">Filter</Button>
-                    </form>
-                    <Button onClick={() => setShowAdd(!showAdd)} className="gap-2 font-bold shadow-lg shadow-blue-500/20">
-                        <Plus className="h-5 w-5" /> RECORD PURCHASE
+                    <Card className="w-full border-slate-200 dark:border-slate-800 dark:bg-slate-900 md:w-auto">
+                        <CardContent className="pt-4">
+                            <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); fetchPurchases(); }}>
+                                <div className="space-y-2">
+                                    <Label htmlFor="purch-startDate" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Start Date</Label>
+                                    <Input id="purch-startDate" type="date" className="h-9 w-40 dark:bg-slate-800/50 dark:border-slate-700" value={startDate} onChange={e => setStartDate(e.target.value)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="purch-endDate" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">End Date</Label>
+                                    <Input id="purch-endDate" type="date" className="h-9 w-40 dark:bg-slate-800/50 dark:border-slate-700" value={endDate} onChange={e => setEndDate(e.target.value)} />
+                                </div>
+                                <Button size="sm" type="submit" className="h-9 gap-2 bg-blue-600 font-semibold text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700">Filter</Button>
+                            </form>
+                        </CardContent>
+                    </Card>
+                    <Button onClick={() => setShowAdd(!showAdd)} className="shrink-0 gap-2 bg-blue-600 font-semibold text-white shadow-sm hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700">
+                        <Plus className="h-4 w-4" /> Record Purchase
                     </Button>
                 </div>
             </div>
 
             {showAdd && (
-                <Card className="bg-white dark:bg-slate-900 border-none shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-blue-600" />
-                    <CardHeader>
-                        <CardTitle className="flex justify-between items-center pr-2">
-                            <span>{editingId ? 'Updating Shipment Record' : 'New Shipment Registration'}</span>
-                            <Button variant="ghost" size="icon" onClick={handleCancel}><X className="h-5 w-5" /></Button>
-                        </CardTitle>
+                <Card className="animate-in fade-in zoom-in border-slate-200 duration-200 dark:border-slate-800 dark:bg-slate-900">
+                    <CardHeader className="flex flex-row items-start justify-between space-y-0">
+                        <div>
+                            <CardTitle className="text-slate-900 dark:text-white">{editingId ? 'Updating Shipment Record' : 'New Shipment Registration'}</CardTitle>
+                            <CardDescription className="mt-1 text-slate-500 dark:text-slate-400">Add vendor, items and payment details.</CardDescription>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={handleCancel}><X className="h-5 w-5" /></Button>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <form onSubmit={handleSubmit} className="space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                                 <div className="space-y-2">
-                                    <Label htmlFor="vendorName" className="text-xs font-black uppercase text-slate-400">Vendor / Supplier</Label>
-                                    <Input id="vendorName" value={formData.vendorName} onChange={handleInputChange} required className="h-11 rounded-xl" placeholder="e.g. Master Sanitary Ltd." />
+                                    <Label htmlFor="vendorName" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Vendor / Supplier</Label>
+                                    <Input id="vendorName" value={formData.vendorName} onChange={handleInputChange} required className="dark:bg-slate-800/50 dark:border-slate-700" placeholder="e.g. Master Sanitary Ltd." />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="paidAmount" className="text-xs font-black uppercase text-slate-400">Initial Paid Amount (Rs.)</Label>
-                                    <Input id="paidAmount" type="number" value={formData.paidAmount} onChange={handleInputChange} required className="h-11 rounded-xl font-black text-green-600" />
+                                    <Label htmlFor="paidAmount" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Initial Paid Amount (Rs.)</Label>
+                                    <Input id="paidAmount" type="number" value={formData.paidAmount} onChange={handleInputChange} required className="dark:bg-slate-800/50 dark:border-slate-700" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-black uppercase text-slate-400">Total Valuation</Label>
-                                    <div className="h-11 flex items-center px-4 bg-slate-50 dark:bg-slate-800 rounded-xl font-black text-xl italic tracking-tighter">
+                                    <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Valuation</Label>
+                                    <div className="flex h-10 items-center rounded-md border border-input bg-slate-50 px-3 py-2 text-sm font-bold dark:border-slate-700 dark:bg-slate-800/50">
                                         Rs. {Number(formData.totalAmount).toLocaleString()}
                                     </div>
                                 </div>
@@ -484,9 +485,9 @@ export default function PurchasePage() {
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center gap-4">
                                     <h3 className="font-black uppercase tracking-widest text-xs text-blue-600">Product Line Items</h3>
-                                    <div className="flex-1 max-w-md">
+                                    <div className="max-w-md flex-1">
                                         <select
-                                            className="w-full h-10 px-3 rounded-xl border bg-white dark:bg-slate-900 text-sm font-bold focus:ring-2 focus:ring-blue-500/20"
+                                            className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:border-slate-700 dark:bg-slate-800/50"
                                             onChange={(e) => {
                                                 const p = products.find(prod => prod._id === e.target.value);
                                                 if (p) addProductToPurchase(p);
@@ -507,7 +508,7 @@ export default function PurchasePage() {
                                     {purchaseItems.map((item, idx) => {
                                         const prod = products.find(p => p._id === item.product);
                                         return (
-                                            <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center p-3 bg-white dark:bg-slate-900 rounded-2xl border shadow-sm group">
+                                            <div key={idx} className="group grid grid-cols-1 items-center gap-4 rounded-xl border border-slate-200 p-3 dark:border-slate-800 dark:bg-slate-800/30 md:grid-cols-12">
                                                 <div className="md:col-span-5 flex items-center gap-3">
                                                     <div className="h-10 w-10 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center border shrink-0">
                                                         <Package className="h-5 w-5 text-slate-400" />
@@ -518,12 +519,12 @@ export default function PurchasePage() {
                                                     </div>
                                                 </div>
                                                 <div className="md:col-span-2 space-y-1">
-                                                    <Label className="text-[9px] font-black uppercase text-slate-400">Qty</Label>
-                                                    <Input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(idx, 'quantity', e.target.value)} required className="h-8 font-bold" />
+                                                    <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Qty</Label>
+                                                    <Input type="number" min="1" value={item.quantity} onChange={(e) => updateItem(idx, 'quantity', e.target.value)} required className="h-9 dark:bg-slate-800/50 dark:border-slate-700" />
                                                 </div>
                                                 <div className="md:col-span-2 space-y-1">
-                                                    <Label className="text-[9px] font-black uppercase text-slate-400">Cost (Rs.)</Label>
-                                                    <Input type="number" value={item.costPrice} onChange={(e) => updateItem(idx, 'costPrice', e.target.value)} required className="h-8 font-black text-blue-600" />
+                                                    <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Cost (Rs.)</Label>
+                                                    <Input type="number" value={item.costPrice} onChange={(e) => updateItem(idx, 'costPrice', e.target.value)} required className="h-9 dark:bg-slate-800/50 dark:border-slate-700" />
                                                 </div>
                                                 <div className="md:col-span-2 text-right">
                                                     <p className="text-[9px] font-black uppercase text-slate-400">Total Value</p>
@@ -539,26 +540,26 @@ export default function PurchasePage() {
                                     })}
 
                                     {purchaseItems.length === 0 && (
-                                        <div className="text-center py-12 border-2 border-dashed rounded-3xl border-slate-200 dark:border-slate-800 flex flex-col items-center gap-3 text-slate-300">
-                                            <div className="h-16 w-16 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
-                                                <Search className="h-8 w-8" />
+                                        <div className="flex flex-col items-center gap-3 rounded-xl border-2 border-dashed border-slate-200 py-12 text-center dark:border-slate-800">
+                                            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                                                <Package className="h-7 w-7 text-slate-400" />
                                             </div>
-                                            <p className="font-black uppercase tracking-widest text-xs">Search and select products to record shipment</p>
+                                            <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Add products from the dropdown above</p>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                                <div className="flex-1 w-full space-y-2">
-                                    <Label htmlFor="billImage" className="text-xs font-black uppercase text-slate-400 flex items-center gap-2">
+                            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                                <div className="w-full flex-1 space-y-2 md:max-w-sm">
+                                    <Label htmlFor="billImage" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                                         <ImageIcon className="h-4 w-4" /> Evidence / Bill Image
                                     </Label>
-                                    <Input id="billImage" type="file" onChange={handleFileChange} accept="image/*" className="h-11 rounded-xl file:bg-blue-50 file:text-blue-600 file:border-none file:font-black file:uppercase file:text-[10px]" />
+                                    <Input id="billImage" type="file" onChange={handleFileChange} accept="image/*" className="dark:bg-slate-800/50 dark:border-slate-700" />
                                 </div>
-                                <div className="flex gap-3 pt-6">
-                                    <Button variant="outline" type="button" onClick={handleCancel} className="h-12 px-8 font-bold border-2 rounded-xl">Cancel</Button>
-                                    <Button type="submit" disabled={loading || purchaseItems.length === 0} className="h-12 px-12 font-black uppercase tracking-widest rounded-xl shadow-xl shadow-blue-500/20">
+                                <div className="flex gap-3">
+                                    <Button type="button" variant="outline" onClick={handleCancel} className="border-slate-200 dark:border-slate-700">Cancel</Button>
+                                    <Button type="submit" disabled={loading || purchaseItems.length === 0} className="bg-blue-600 font-semibold text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700">
                                         {loading ? 'Processing...' : (editingId ? 'Update shipment' : 'Record Shipment')}
                                     </Button>
                                 </div>
@@ -568,50 +569,56 @@ export default function PurchasePage() {
                 </Card>
             )}
 
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border dark:border-slate-800 overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-800">
-                        <tr>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">Date/Time</th>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">Vendor</th>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">Total Valuation</th>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">Settled (Paid)</th>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400">Balance (Credit)</th>
-                            <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-slate-400 text-right pr-10">Analysis</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y dark:divide-slate-800">
-                        {purchases.length === 0 ? (
-                            <tr><td colSpan={6} className="px-6 py-20 text-center text-slate-400 font-bold uppercase tracking-widest opacity-25">No procurement data found</td></tr>
-                        ) : (
-                            purchases.map((p) => (
-                                <tr key={p._id} className="hover:bg-blue-50/50 dark:hover:bg-slate-800 transition-colors group">
-                                    <td className="px-6 py-5 text-xs text-slate-500 font-bold">
-                                        {new Date(p.createdAt).toLocaleString()}
-                                    </td>
-                                    <td className="px-6 py-5 text-sm font-black uppercase">{p.vendorName}</td>
-                                    <td className="px-6 py-5 text-sm font-bold tracking-tight">Rs. {p.totalAmount.toLocaleString()}</td>
-                                    <td className="px-6 py-5 text-sm text-green-600 font-black">Rs. {p.paidAmount.toLocaleString()}</td>
-                                    <td className={`px-6 py-5 text-sm font-black ${p.balance > 0 ? 'text-red-500' : 'text-green-600'}`}>
-                                        <div className="flex items-center gap-2">
-                                            Rs. {p.balance.toLocaleString()}
-                                            {p.balance > 0 && <span className="text-[8px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-black italic">OUTSTANDING</span>}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-5 text-right flex justify-end gap-2 pr-10">
-                                        <Button variant="secondary" size="sm" className="gap-2 h-9 font-bold rounded-lg shadow-sm" onClick={() => setViewingPurchase(p)}>
-                                            <Eye className="h-4 w-4" /> VIEW RECORD
-                                        </Button>
-                                        <Button variant="ghost" size="icon" className="h-9 w-9 text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(p._id)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </td>
+            <Card className="overflow-hidden border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+                <CardHeader>
+                    <CardTitle className="text-slate-900 dark:text-white">Purchase History</CardTitle>
+                    <CardDescription className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Vendor, amount and balance</CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                            <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase text-xs font-bold">
+                                <tr>
+                                    <th className="rounded-l-lg px-4 py-3">Date/Time</th>
+                                    <th className="px-4 py-3">Vendor</th>
+                                    <th className="px-4 py-3">Total</th>
+                                    <th className="px-4 py-3">Paid</th>
+                                    <th className="px-4 py-3">Balance</th>
+                                    <th className="rounded-r-lg px-4 py-3 text-right">Actions</th>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                {purchases.length === 0 ? (
+                                    <tr><td colSpan={6} className="px-4 py-8 text-center italic text-slate-400">No procurement data found.</td></tr>
+                                ) : (
+                                    purchases.map((p) => (
+                                        <tr key={p._id} className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                            <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{new Date(p.createdAt).toLocaleString()}</td>
+                                            <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{p.vendorName}</td>
+                                            <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">Rs. {p.totalAmount.toLocaleString()}</td>
+                                            <td className="px-4 py-3 font-medium text-emerald-600 dark:text-emerald-400">Rs. {p.paidAmount.toLocaleString()}</td>
+                                            <td className={`px-4 py-3 font-bold ${p.balance > 0 ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                                                Rs. {p.balance.toLocaleString()}
+                                                {p.balance > 0 && <span className="ml-1.5 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700 dark:bg-red-900/30 dark:text-red-400">OUTSTANDING</span>}
+                                            </td>
+                                            <td className="px-4 py-3 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <Button size="sm" className="h-9 gap-2 bg-blue-600 font-semibold text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700" onClick={() => setViewingPurchase(p)}>
+                                                        <Eye className="h-4 w-4" /> View
+                                                    </Button>
+                                                    <Button variant="ghost" size="icon" className="h-9 w-9 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 dark:hover:text-red-400" onClick={() => handleDelete(p._id)}>
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }
