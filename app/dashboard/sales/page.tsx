@@ -289,7 +289,7 @@ export default function POSPage() {
     const { isChallan, customStore } = options;
     const displayStore = customStore || sale.store;
 
-    const title = isChallan ? "SALES INVOICE" : "SALES INVOICE";
+    const title = isChallan ? "DELIVERY CHALLAN" : "SALES INVOICE";
 
     const customerHtml = sale.customerName
       ? `<div class="box-content">
@@ -324,227 +324,578 @@ export default function POSPage() {
       )
       .join("");
 
+    const storeName = (displayStore?.name || "STORE NAME").toUpperCase();
+    const contactLine = [
+      displayStore?.location || "",
+      `T: ${displayStore?.contactNumber || "Contact Office"}`,
+    ]
+      .filter(Boolean)
+      .join(" | ");
+
     const html = `
             <!DOCTYPE html>
-            <html>
+            <html lang="en">
                 <head>
+                    <meta charset="utf-8">
                     <title>${title} - ${sale.invoiceId}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
                     <style>
-                        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap');
-                        
+                        * { box-sizing: border-box; margin: 0; padding: 0; }
                         body { 
-                            font-family: 'Outfit', sans-serif; margin: 0; padding: 0; color: #1e293b; background: #f1f5f9; -webkit-print-color-adjust: exact;
+                            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+                            margin: 0; 
+                            padding: 20px; 
+                            color: #1a1f36; 
+                            background: #f8fafc; 
+                            -webkit-print-color-adjust: exact; 
+                            print-color-adjust: exact; 
+                            line-height: 1.6;
                         }
-                        
-                        .container { 
-                            width: 210mm; min-height: 297mm; background: #fff; margin: 10mm auto; padding: 15mm; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.1); position: relative; box-sizing: border-box;
+                        .sheet { 
+                            width: 210mm; 
+                            min-height: 297mm; 
+                            margin: 0 auto; 
+                            background: #ffffff; 
+                            border-radius: 0; 
+                            box-shadow: 0 8px 32px rgba(0,0,0,0.12); 
+                            overflow: hidden; 
+                            position: relative;
                         }
-
-                        .decorative-top { position: absolute; top: 0; left: 0; right: 0; height: 10px; background: linear-gradient(90deg, #0f172a 0%, #3b82f6 100%); }
-
-                        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 20px; margin-bottom: 50px; }
-
-                        .brand h1 { font-family: 'Space Grotesk', sans-serif; font-size: 44px; font-weight: 800; letter-spacing: -3px; color: #0f172a; margin: 0; text-transform: uppercase; line-height: 0.9; }
-                        
-                        .brand p { font-size: 11px; font-weight: 800; color: #3b82f6; text-transform: uppercase; letter-spacing: 3px; margin-top: 8px; }
-
-                        .store-info { margin-top: 25px; font-size: 13px; line-height: 1.6; color: #64748b; font-weight: 500; }
-
-                        .invoice-badge { text-align: right; }
-
-                        .badge-text { background: #0f172a; color: white; padding: 12px 30px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; border-radius: 4px; display: inline-block; margin-bottom: 25px; }
-
-                        .meta-list { font-size: 13px; font-weight: 700; display: grid; gap: 10px; color: #94a3b8; }
-                        
-                        .meta-list span { color: #0f172a; font-weight: 800; margin-left: 15px; }
-
-                        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 50px; border-top: 1px solid #f1f5f9; padding-top: 30px; }
-
-                        .detail-label { font-size: 10px; font-weight: 900; color: #cbd5e1; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; }
-
-                        .detail-main { font-size: 18px; font-weight: 800; color: #0f172a; }
-                        .detail-sub { font-size: 13px; color: #64748b; margin-top: 5px; }
-
-                        table { width: 100%; border-collapse: collapse; margin-bottom: 50px; }
-                        th { padding: 15px; text-align: left; font-size: 11px; font-weight: 900; text-transform: uppercase; color: #94a3b8; border-bottom: 2px solid #0f172a; }
-                        td { padding: 20px 15px; font-size: 15px; border-bottom: 1px solid #f1f5f9; }
-
-                        .item-name { font-weight: 800; color: #0f172a; font-size: 16px; }
-                        .item-sku { font-size: 11px; color: #94a3b8; font-weight: 700; margin-top: 4px; }
-
-                        .bottom-section { display: flex; justify-content: space-between; gap: 60px; page-break-inside: avoid; }
-
-                        .remarks-box { flex: 1; background: #f8fafc; border-radius: 12px; padding: 25px; border: 1px solid #f1f5f9; }
-
-                        .totals-box { width: 320px; }
-                        .total-row { display: flex; justify-content: space-between; padding: 10px 0; color: #64748b; font-weight: 600; font-size: 14px; }
-                        .total-row.grand { border-top: 2px solid #0f172a; margin-top: 15px; padding-top: 25px; font-size: 32px; font-weight: 950; color: #0f172a; font-family: 'Space Grotesk', sans-serif; letter-spacing: -1px; }
-
-                        .footer { margin-top: 100px; text-align: center; font-size: 11px; color: #94a3b8; font-weight: 700; border-top: 1px dashed #e2e8f0; padding-top: 40px; }
-
-                        @media print { body { background: #fff; } .container { box-shadow: none; margin: 0; width: 100%; padding: 10mm; border: none; } }
+                        .strip { 
+                            height: 6px; 
+                            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+                            position: relative;
+                        }
+                        .strip::after {
+                            content: '';
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            right: 0;
+                            height: 1px;
+                            background: linear-gradient(90deg, transparent, rgba(59,130,246,0.3), transparent);
+                        }
+                        .inner { 
+                            padding: 32px 36px 40px; 
+                            position: relative;
+                        }
+                        .top { 
+                            display: flex; 
+                            justify-content: space-between; 
+                            align-items: flex-start; 
+                            gap: 32px; 
+                            margin-bottom: 36px; 
+                            padding-bottom: 28px; 
+                            border-bottom: 2px solid #e5e7eb;
+                            position: relative;
+                        }
+                        .top::after {
+                            content: '';
+                            position: absolute;
+                            bottom: -2px;
+                            left: 0;
+                            width: 80px;
+                            height: 2px;
+                            background: linear-gradient(90deg, #3b82f6, transparent);
+                        }
+                        .store { position: relative; }
+                        .store .title { 
+                            font-size: 32px; 
+                            font-weight: 800; 
+                            color: #0f172a; 
+                            margin: 0 0 6px 0; 
+                            letter-spacing: -0.02em;
+                            line-height: 1.2;
+                        }
+                        .store .tag { 
+                            font-size: 11px; 
+                            font-weight: 700; 
+                            color: #3b82f6; 
+                            text-transform: uppercase; 
+                            letter-spacing: 0.2em; 
+                            margin-top: 8px;
+                            display: inline-block;
+                            padding: 4px 12px;
+                            background: rgba(59,130,246,0.1);
+                            border-radius: 4px;
+                        }
+                        .store .details { 
+                            font-size: 13px; 
+                            color: #64748b; 
+                            margin-top: 14px; 
+                            line-height: 1.7;
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 8px;
+                        }
+                        .store .details span {
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 4px;
+                        }
+                        .store .details span:not(:last-child)::after {
+                            content: '•';
+                            margin-left: 8px;
+                            color: #cbd5e1;
+                        }
+                        .badge-block { 
+                            text-align: right; 
+                            display: flex;
+                            flex-direction: column;
+                            align-items: flex-end;
+                        }
+                        .inv-badge { 
+                            display: inline-block; 
+                            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+                            color: #ffffff; 
+                            padding: 14px 28px; 
+                            font-size: 13px; 
+                            font-weight: 800; 
+                            border-radius: 8px; 
+                            margin-bottom: 18px; 
+                            text-transform: uppercase; 
+                            letter-spacing: 0.1em;
+                            box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+                        }
+                        .inv-meta { 
+                            font-size: 12px; 
+                            color: #64748b; 
+                            font-weight: 500;
+                            text-align: right;
+                        }
+                        .inv-meta p { 
+                            margin: 6px 0 0; 
+                            line-height: 1.6;
+                        }
+                        .inv-meta b { 
+                            color: #1e40af; 
+                            font-weight: 700; 
+                            margin-left: 8px;
+                            font-size: 13px;
+                        }
+                        .blocks { 
+                            display: grid; 
+                            grid-template-columns: 1fr 1fr; 
+                            gap: 32px; 
+                            margin-bottom: 32px;
+                            padding: 24px;
+                            background: linear-gradient(to bottom, #f8fafc, #ffffff);
+                            border-radius: 12px;
+                            border: 1px solid #e5e7eb;
+                        }
+                        .block-label { 
+                            font-size: 9px; 
+                            font-weight: 800; 
+                            color: #94a3b8; 
+                            text-transform: uppercase; 
+                            letter-spacing: 0.15em; 
+                            margin-bottom: 8px;
+                        }
+                        .block-value { 
+                            font-size: 16px; 
+                            font-weight: 700; 
+                            color: #0f172a;
+                            line-height: 1.4;
+                        }
+                        .block-value.highlight { 
+                            color: #1e40af;
+                            font-size: 17px;
+                        }
+                        .block-note { 
+                            font-size: 12px; 
+                            color: #64748b; 
+                            margin-top: 6px;
+                            line-height: 1.5;
+                        }
+                        .inv-table { 
+                            width: 100%; 
+                            border-collapse: separate;
+                            border-spacing: 0;
+                            margin-bottom: 32px; 
+                            border: 1px solid #e5e7eb; 
+                            border-radius: 12px; 
+                            overflow: hidden;
+                            background: #ffffff;
+                            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                        }
+                        .inv-table thead { 
+                            background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
+                        }
+                        .inv-table th { 
+                            padding: 16px 18px; 
+                            text-align: left; 
+                            font-size: 10px; 
+                            font-weight: 800; 
+                            text-transform: uppercase; 
+                            letter-spacing: 0.12em; 
+                            color: #475569;
+                            border-bottom: 2px solid #e5e7eb;
+                            position: relative;
+                        }
+                        .inv-table th.num { text-align: right; }
+                        .inv-table th.c { text-align: center; }
+                        .inv-table td { 
+                            padding: 18px; 
+                            font-size: 14px; 
+                            border-bottom: 1px solid #f1f5f9; 
+                            vertical-align: top;
+                            background: #ffffff;
+                        }
+                        .inv-table tbody tr {
+                            transition: background-color 0.2s;
+                        }
+                        .inv-table tbody tr:nth-child(even) td {
+                            background: #fafbfc;
+                        }
+                        .inv-table tbody tr:hover td {
+                            background: #f0f9ff;
+                        }
+                        .inv-table td.num { text-align: right; }
+                        .inv-table td.c { text-align: center; }
+                        .inv-table tbody tr:last-child td { border-bottom: 0; }
+                        .prod-name { 
+                            font-weight: 700; 
+                            color: #0f172a; 
+                            font-size: 15px;
+                            margin-bottom: 4px;
+                        }
+                        .prod-code { 
+                            font-size: 11px; 
+                            color: #94a3b8; 
+                            margin-top: 4px;
+                            font-family: 'Courier New', monospace;
+                        }
+                        .row-wrap { 
+                            display: flex; 
+                            justify-content: space-between; 
+                            gap: 48px; 
+                            margin-bottom: 48px; 
+                            align-items: flex-start;
+                        }
+                        .notes-panel { 
+                            flex: 1; 
+                            max-width: 60%; 
+                            background: linear-gradient(to bottom, #f8fafc, #ffffff);
+                            border: 1px solid #e5e7eb; 
+                            border-radius: 12px; 
+                            padding: 24px 26px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                        }
+                        .notes-panel .block-label { 
+                            margin-bottom: 12px;
+                            color: #64748b;
+                        }
+                        .notes-body { 
+                            font-size: 12px; 
+                            color: #475569; 
+                            line-height: 1.75; 
+                            font-style: italic;
+                        }
+                        .sum-panel { 
+                            width: 320px; 
+                            flex-shrink: 0;
+                            background: linear-gradient(to bottom, #ffffff, #f8fafc);
+                            border: 1px solid #e5e7eb;
+                            border-radius: 12px;
+                            padding: 24px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+                        }
+                        .sum-row { 
+                            display: flex; 
+                            justify-content: space-between; 
+                            padding: 10px 0; 
+                            font-size: 14px; 
+                            color: #64748b; 
+                            font-weight: 500;
+                            align-items: center;
+                        }
+                        .sum-row.grand { 
+                            border-top: 3px solid #1e40af; 
+                            margin-top: 16px; 
+                            padding-top: 20px; 
+                            font-size: 24px; 
+                            font-weight: 800; 
+                            color: #0f172a;
+                            background: linear-gradient(to right, transparent, rgba(59,130,246,0.05), transparent);
+                            padding-left: 12px;
+                            padding-right: 12px;
+                            margin-left: -12px;
+                            margin-right: -12px;
+                            border-radius: 8px;
+                        }
+                        .sum-row.ok { 
+                            font-weight: 700; 
+                            font-size: 15px; 
+                            color: #059669; 
+                            margin-top: 12px;
+                            padding-top: 14px;
+                            border-top: 1px solid #d1fae5;
+                        }
+                        .sum-row.due { 
+                            font-weight: 700; 
+                            color: #dc2626;
+                            font-size: 15px;
+                        }
+                        .sign-row { 
+                            display: flex; 
+                            justify-content: space-between; 
+                            gap: 48px; 
+                            margin-bottom: 48px;
+                            margin-top: 40px;
+                        }
+                        .sign-box { 
+                            flex: 1;
+                            max-width: 240px;
+                            border-top: 2px dashed #cbd5e1; 
+                            padding-top: 16px; 
+                            font-size: 9px; 
+                            font-weight: 800; 
+                            color: #94a3b8; 
+                            text-transform: uppercase; 
+                            letter-spacing: 0.12em;
+                            min-height: 80px;
+                        }
+                        .legal { 
+                            text-align: center; 
+                            font-size: 10px; 
+                            color: #94a3b8; 
+                            font-weight: 600; 
+                            line-height: 1.8; 
+                            padding-top: 28px; 
+                            border-top: 1px dashed #e5e7eb;
+                            background: linear-gradient(to bottom, transparent, rgba(241,245,249,0.5));
+                            margin: 0 -36px -40px;
+                            padding-left: 36px;
+                            padding-right: 36px;
+                            padding-bottom: 32px;
+                        }
+                        .legal strong {
+                            color: #64748b;
+                            font-weight: 700;
+                        }
+                        @media print { 
+                            body { 
+                                background: #fff; 
+                                padding: 0; 
+                            } 
+                            .sheet { 
+                                box-shadow: none; 
+                                border-radius: 0;
+                                width: 100%;
+                                margin: 0;
+                            } 
+                            .strip { 
+                                height: 4px;
+                            }
+                            .inner { 
+                                padding: 20mm 25mm;
+                            }
+                            .inv-table tbody tr:nth-child(even) td {
+                                background: #fafbfc !important;
+                            }
+                            .inv-table tbody tr:hover td {
+                                background: #fafbfc !important;
+                            }
+                        }
+                        @page {
+                            margin: 0;
+                            size: A4;
+                        }
                     </style>
                 </head>
                 <body>
-                    <div class="container">
-                        <div class="decorative-top"></div>
-                        <div class="header">
-                            <div class="brand">
-                                <h1>${displayStore?.name || "STORE NAME"}</h1>
-                                <p>Premium Sanitary & Lifestyle Solutions</p>
-                                <div class="store-info">
-                                    ${
-                                      displayStore?.location ||
-                                      "Main Business Hub Address"
-                                    }<br>
-                                    T: ${
-                                      displayStore?.contactNumber ||
-                                      "Contact Office"
-                                    } | E: business@pos.com
+                    <div class="sheet">
+                        <div class="strip"></div>
+                        <div class="inner">
+                            <div class="top">
+                                <div class="store">
+                                    <h1 class="title">${storeName}</h1>
+                                    <p class="tag">Premium Sanitary & Lifestyle Solutions</p>
+                                    <div class="details">
+                                        ${contactLine
+                                          .split(" | ")
+                                          .map(
+                                            (part: string, idx: number) =>
+                                              `<span>${part}</span>`,
+                                          )
+                                          .join("")}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="invoice-badge">
-                                <div class="badge-text">${title}</div>
-                                <div class="meta-list">
-                                    <div>INVOICE REF # <span>${
-                                      sale.invoiceId
-                                    }</span></div>
-                                    <div>DATE OF ISSUE <span>${new Date(
-                                      sale.createdAt,
-                                    ).toLocaleDateString()}</span></div>
-                                    ${
-                                      sale.referenceNo
-                                        ? `<div>EXTERNAL REF <span>${sale.referenceNo}</span></div>`
-                                        : ""
-                                    }
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="details-grid">
-                            <div>
-                                <div class="detail-label">Billing Entity</div>
-                                <div class="detail-main">${
-                                  sale.customerName || "Cash / Walk-in Customer"
-                                }</div>
-                                <div class="detail-sub">${
-                                  sale.customerPhone || ""
-                                }<br>${sale.customerAddress || ""}</div>
-                            </div>
-                            <div style="text-align: right">
-                                <div class="detail-label">Financial Status</div>
-                                <div class="detail-main" style="color: #3b82f6">${
-                                  sale.paidAmount >= sale.totalAmount
-                                    ? "Fully Discharged"
-                                    : "Pending Settlement"
-                                }</div>
-                                <div class="detail-sub">Operator: ${
-                                  sale.salesman?.name || "Authorized Staff"
-                                }</div>
-                            </div>
-                        </div>
-
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 40px">#</th>
-                                    <th>Article Description</th>
-                                    <th style="width: 100px; text-align: center">Quantity</th>
-                                    ${
-                                      !isChallan
-                                        ? `<th style="width: 130px; text-align: right">Unit Valuation</th>`
-                                        : ""
-                                    }
-                                    ${
-                                      !isChallan
-                                        ? `<th style="width: 150px; text-align: right">Net Amount</th>`
-                                        : ""
-                                    }
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${sale.items
-                                  ?.map(
-                                    (item: any, index: number) => `
-                                    <tr>
-                                        <td style="color: #cbd5e1; font-weight: 800;">${String(
-                                          index + 1,
-                                        ).padStart(2, "0")}</td>
-                                        <td>
-                                            <div class="item-name">${
-                                              item.product?.name
-                                            }</div>
-                                            <div class="item-sku">Serial/Code: ${
-                                              item.product?.barcode
-                                            }</div>
-                                        </td>
-                                        <td style="text-align: center; font-weight: 800; color: #0f172a;">${
-                                          item.quantity
-                                        }</td>
+                                <div class="badge-block">
+                                    <div class="inv-badge">${
+                                      isChallan ? "INVOICE" : title
+                                    }</div>
+                                    <div class="inv-meta">
+                                        <p>Invoice ref # <b>${
+                                          sale.invoiceId
+                                        }</b></p>
+                                        <p>Date of issue <b>${new Date(
+                                          sale.createdAt,
+                                        ).toLocaleDateString("en-US", {
+                                          year: "numeric",
+                                          month: "long",
+                                          day: "numeric",
+                                        })}</b></p>
                                         ${
-                                          !isChallan
-                                            ? `<td style="text-align: right; color: #64748b; font-weight: 600;">Rs. ${item.price.toLocaleString()}</td>`
+                                          sale.referenceNo
+                                            ? `<p>External ref <b>${sale.referenceNo}</b></p>`
                                             : ""
                                         }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="blocks">
+                                <div>
+                                    <div class="block-label">${
+                                      isChallan
+                                        ? "Invoice name"
+                                        : "Billing entity"
+                                    }</div>
+                                    ${
+                                      isChallan
+                                        ? `
+                                        <div class="block-value">${
+                                          sale.invoiceId
+                                        }</div>
+                                        ${
+                                          sale.customerName
+                                            ? `<div class="block-note" style="margin-top: 8px;">Customer: ${
+                                                sale.customerName
+                                              }${
+                                                sale.customerPhone
+                                                  ? ` • ${sale.customerPhone}`
+                                                  : ""
+                                              }${
+                                                sale.customerAddress
+                                                  ? ` • ${sale.customerAddress}`
+                                                  : ""
+                                              }</div>`
+                                            : '<div class="block-note" style="margin-top: 8px;">Cash / Walk-in Customer</div>'
+                                        }
+                                    `
+                                        : `
+                                        <div class="block-value">${
+                                          sale.customerName ||
+                                          "Cash / Walk-in Customer"
+                                        }</div>
+                                        ${
+                                          sale.customerPhone ||
+                                          sale.customerAddress
+                                            ? `<div class="block-note">${[
+                                                sale.customerPhone,
+                                                sale.customerAddress,
+                                              ]
+                                                .filter(Boolean)
+                                                .join(" • ")}</div>`
+                                            : ""
+                                        }
+                                    `
+                                    }
+                                </div>
+                                <div style="text-align: right;">
+                                    <div class="block-label">Financial status</div>
+                                    <div class="block-value highlight">${
+                                      sale.paidAmount >= sale.totalAmount
+                                        ? "Fully Discharged"
+                                        : "Pending Settlement"
+                                    }</div>
+                                    <div class="block-note">Operator: ${
+                                      sale.salesman?.name || "Authorized Staff"
+                                    }</div>
+                                </div>
+                            </div>
+
+                            <table class="inv-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px">#</th>
+                                        <th>Article description</th>
+                                        <th class="c" style="width: 90px">Qty</th>
                                         ${
                                           !isChallan
-                                            ? `<td style="text-align: right; font-weight: 900; color: #0f172a;">Rs. ${(
-                                                item.quantity * item.price
-                                              ).toLocaleString()}</td>`
+                                            ? '<th class="num" style="width: 120px">Unit valuation</th><th class="num" style="width: 130px">Net amount</th>'
                                             : ""
                                         }
                                     </tr>
-                                `,
-                                  )
-                                  .join("")}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    ${sale.items
+                                      ?.map(
+                                        (item: any, index: number) => `
+                                        <tr>
+                                            <td style="color: #94a3b8; font-weight: 700; font-size: 13px;">${String(
+                                              index + 1,
+                                            ).padStart(2, "0")}</td>
+                                            <td>
+                                                <div class="prod-name">${
+                                                  item.product?.name || "Item"
+                                                }</div>
+                                                <div class="prod-code">Serial/Code: ${
+                                                  item.product?.barcode || "—"
+                                                }</div>
+                                            </td>
+                                            <td class="c" style="font-weight: 700; font-size: 15px; color: #1e40af;">${
+                                              item.quantity
+                                            }</td>
+                                            ${
+                                              !isChallan
+                                                ? `<td class="num" style="color: #64748b; font-weight: 600;">Rs. ${item.price.toLocaleString()}</td><td class="num" style="font-weight: 800; color: #0f172a; font-size: 15px;">Rs. ${(
+                                                    item.quantity * item.price
+                                                  ).toLocaleString()}</td>`
+                                                : ""
+                                            }
+                                        </tr>
+                                    `,
+                                      )
+                                      .join("")}
+                                </tbody>
+                            </table>
 
-                        <div class="bottom-section">
-                            <div class="remarks-box">
-                                <div class="detail-label">Legal Notes & Instructions</div>
-                                <div style="font-size: 13px; color: #475569; line-height: 1.7; font-style: italic;">
-                                    ${
+                            <div class="row-wrap">
+                                <div class="notes-panel">
+                                    <div class="block-label">Legal notes & instructions</div>
+                                    <div class="notes-body">${
                                       sale.remarks ||
                                       "No specific terms documented for this transaction. Standard warranty and exchange policy applies as per store guidelines."
-                                    }
+                                    }</div>
                                 </div>
+                                ${
+                                  !isChallan
+                                    ? `
+                                <div class="sum-panel">
+                                    <div class="sum-row"><span>Gross subtotal</span><span style="font-weight: 600;">Rs. ${sale.subtotal.toLocaleString()}</span></div>
+                                    <div class="sum-row"><span>Campaign discount</span><span style="font-weight: 600; color: #dc2626;">- Rs. ${(
+                                      sale.invoiceDiscount || 0
+                                    ).toLocaleString()}</span></div>
+                                    <div class="sum-row grand"><span>Total</span><span>Rs. ${sale.totalAmount.toLocaleString()}</span></div>
+                                    <div class="sum-row ok"><span>Received PKR</span><span>Rs. ${sale.paidAmount.toLocaleString()}</span></div>
+                                    <div class="sum-row due"><span>Outstanding</span><span>Rs. ${Math.max(
+                                      0,
+                                      sale.totalAmount - sale.paidAmount,
+                                    ).toLocaleString()}</span></div>
+                                </div>
+                                `
+                                    : ""
+                                }
                             </div>
-                            
-                            ${
-                              !isChallan
-                                ? `
-                            <div class="totals-box">
-                                <div class="total-row"><span>Gross Subtotal</span><span style="color:#0f172a">Rs. ${sale.subtotal.toLocaleString()}</span></div>
-                                <div class="total-row"><span>Campaign Discount</span><span style="color:#bc1a1a">- Rs. ${sale.invoiceDiscount.toLocaleString()}</span></div>
-                                <div class="total-row grand"><span>Total</span><span>Rs. ${sale.totalAmount.toLocaleString()}</span></div>
-                                <div class="total-row" style="margin-top: 15px; font-weight: 900; font-size: 16px; color: #059669;">
-                                    <span>Received PKR</span><span>Rs. ${sale.paidAmount.toLocaleString()}</span>
-                                </div>
-                                <div class="total-row" style="font-weight: 900; color: #bc1a1a;">
-                                    <span>Outstanding</span><span>Rs. ${(
-                                      sale.totalAmount - sale.paidAmount
-                                    ).toLocaleString()}</span>
-                                </div>
-                            </div>
-                            `
-                                : ""
-                            }
-                        </div>
 
-                        <div class="footer">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 70px;">
-                                <div style="border-top: 2px solid #0f172a; width: 220px; padding-top: 15px; text-transform: uppercase; letter-spacing: 1px;">Customer Signature</div>
-                                <div style="border-top: 2px solid #0f172a; width: 220px; padding-top: 15px; text-transform: uppercase; letter-spacing: 1px;">Authorized Office Control</div>
+                            <div class="sign-row">
+                                <div class="sign-box">Customer signature</div>
+                                <div class="sign-box">Authorized office control</div>
                             </div>
-                            AUTHENTICATED SYSTEM GENERATED DOCUMENT. NO SIGNATURE REQUIRED. <br>
-                            BUILD VERSION 2.0.1 | POWERED BY SANITARY POS PRO HUB
+
+                            <div class="legal">
+                                <strong>Authenticated system-generated document.</strong> No signature required.<br>
+                                Build 2.0.1 · Powered by <strong>Sanitary POS Pro Hub</strong>
+                            </div>
                         </div>
                     </div>
                 </body>
             </html>
         `;
 
+    WindowPrt.document.open();
     WindowPrt.document.write(html);
     WindowPrt.document.close();
     WindowPrt.focus();
@@ -589,7 +940,7 @@ export default function POSPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-slate-50/30 dark:bg-slate-950">
+    <div className="flex flex-1 flex-col min-h-0 overflow-hidden bg-slate-50/30 dark:bg-slate-950 w-full">
       {/* Top Navigation for POS */}
       <div className="bg-white dark:bg-slate-900 border-b px-6 py-3 flex items-center justify-between shrink-0 shadow-sm z-10">
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
@@ -652,289 +1003,364 @@ export default function POSPage() {
       </div>
 
       {activeMode === "sale" ? (
-        <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
-          {/* Left side: Product Selection */}
-          <div className="flex-1 p-4 md:p-6 space-y-4 overflow-y-auto">
-            <div className="relative group">
-              <Search className="absolute left-4 top-4 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+        <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden w-full">
+          {/* Left side: Product Selection — 100% of available screen */}
+          <div className="flex-1 min-w-0 min-h-0 flex flex-col p-4 md:p-6">
+            <div className="relative group w-full shrink-0 mb-4">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors pointer-events-none" />
               <Input
                 ref={barcodeRef}
                 placeholder="Search products or scan barcode (Product Code)..."
-                className="pl-12 h-14 text-lg rounded-2xl border-2 focus:border-blue-500/50 shadow-sm bg-white dark:bg-slate-900"
+                className="w-full pl-12 h-14 text-base rounded-2xl border border-slate-200 focus:border-blue-500/50 bg-slate-100/80 dark:bg-slate-800/80 dark:border-slate-700 dark:focus:border-blue-500/50"
                 value={searchTerm}
                 onChange={handleBarcodeChange}
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-              {products
-                .filter(
-                  (p) =>
-                    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    p.barcode.toLowerCase().includes(searchTerm.toLowerCase()),
-                )
-                .map((p) => (
-                  <Card
-                    key={p._id}
-                    className="cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all dark:bg-slate-900 overflow-hidden relative group"
-                    onClick={() => addToCart(p)}
-                  >
-                    <CardContent className="p-4 flex flex-col items-center">
-                      <div className="w-full h-24 mb-3 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center overflow-hidden">
-                        {p.image ? (
-                          <img
-                            src={`http://localhost:5000${p.image}`}
-                            alt={p.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <Search className="h-8 w-8 text-slate-300" />
-                        )}
+            <div className="flex-1 min-h-0 overflow-y-auto w-full">
+              <div className="grid w-full grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {products
+                  .filter(
+                    (p) =>
+                      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      p.barcode
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase()),
+                  )
+                  .map((p) => (
+                    <button
+                      key={p._id}
+                      type="button"
+                      onClick={() => addToCart(p)}
+                      className="overflow-hidden rounded-xl border border-slate-200 bg-white text-left shadow-sm transition-all duration-200 hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:ring-offset-2"
+                    >
+                      {p.image ? (
+                        <img
+                          src={`http://localhost:5000${p.image}`}
+                          alt={p.name}
+                          className="h-32 w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-32 w-full items-center justify-center border-b border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
+                          <Package className="h-12 w-12 text-slate-300 dark:text-slate-600" />
+                        </div>
+                      )}
+                      <div className="p-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                              {p.name}
+                            </h3>
+                            <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                              {p.category || p.description || "—"}
+                            </p>
+                          </div>
+                          <span className="shrink-0 rounded-full bg-blue-500 px-2.5 py-0.5 text-xs font-bold text-white min-w-[1.75rem] text-center">
+                            {p.totalStock}
+                          </span>
+                        </div>
+                        <div className="mt-2 flex items-baseline justify-between gap-2">
+                          <span className="text-base font-bold text-emerald-600 dark:text-emerald-400">
+                            Rs. {Number(p.salePrice).toLocaleString()}
+                          </span>
+                          <span className="text-xs text-slate-400 line-through dark:text-slate-500">
+                            Rs. {Number(p.costPrice).toLocaleString()}
+                          </span>
+                        </div>
+                        <p className="mt-1.5 truncate text-xs text-slate-500 dark:text-slate-400">
+                          Barcode: {p.barcode}
+                        </p>
                       </div>
-                      <p className="font-bold text-sm text-center mb-1 truncate w-full dark:text-white uppercase">
-                        {p.name}
-                      </p>
-                      <div className="flex flex-col items-center">
-                        <span className="text-blue-600 dark:text-blue-400 font-extrabold text-lg">
-                          Rs. {p.salePrice}
-                        </span>
-                        <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full font-bold text-slate-500 uppercase tracking-tighter">
-                          Code: {p.barcode}
-                        </span>
-                      </div>
-                      <div
-                        className={cn(
-                          "mt-2 text-[10px] font-bold px-2 py-0.5 rounded",
-                          p.totalStock > 10 ? "text-green-600" : "text-red-500",
-                        )}
-                      >
-                        STOCK: {p.totalStock}
-                      </div>
-                    </CardContent>
-                    <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                  </Card>
-                ))}
+                    </button>
+                  ))}
+              </div>
             </div>
           </div>
 
-          {/* Right side: Cart & Checkout */}
-          <div className="w-full lg:w-[450px] bg-white dark:bg-slate-900 border-l dark:border-slate-800 flex flex-col shadow-2xl z-20 shrink-0">
-            <div className="p-6 border-b shrink-0 bg-white dark:bg-slate-900 space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-black flex items-center tracking-tight">
-                  <ShoppingCart className="mr-3 h-6 w-6 text-blue-600" />
-                  TRANSACTION
-                </h2>
-              </div>
-
-              {/* Customer Link */}
-              <div className="relative">
-                {selectedCustomer ? (
-                  <div className="flex items-center justify-between p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-blue-600" />
-                      <div>
-                        <p className="text-xs font-bold text-blue-700 dark:text-blue-300">
-                          {selectedCustomer.name}
-                        </p>
-                        <p className="text-[10px] text-blue-500">
-                          {selectedCustomer.phone}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0"
-                      onClick={() => setSelectedCustomer(null)}
+          {/* Right side: Cart & Checkout — same card/label style as other pages */}
+          <div className="flex w-full flex-col shrink-0 overflow-hidden border-l border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950 lg:w-[420px]">
+            <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4 md:p-6">
+              {/* Transaction details card */}
+              <Card className="shrink-0 border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white">
+                    <ShoppingCart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    Transaction
+                  </CardTitle>
+                  <CardDescription className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Customer and reference
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="customer-search"
+                      className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
                     >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <Input
-                      placeholder="Search Customer (Phone)..."
-                      className="h-9 text-sm"
-                      value={customerSearch}
-                      onChange={(e) => {
-                        setCustomerSearch(e.target.value);
-                        if (e.target.value.length > 2)
-                          fetchCustomers(e.target.value);
-                      }}
-                    />
-                    {customers.length > 0 && (
-                      <div className="absolute top-10 left-0 w-full bg-white dark:bg-slate-800 border shadow-lg rounded-lg z-50 max-h-40 overflow-y-auto">
-                        {customers.map((c) => (
-                          <div
-                            key={c._id}
-                            className="p-2 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer text-sm"
-                            onClick={() => handleCustomerSelection(c)}
-                          >
-                            <p className="font-bold">{c.name}</p>
-                            <p className="text-xs text-slate-500">{c.phone}</p>
+                      Customer
+                    </Label>
+                    {selectedCustomer ? (
+                      <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-blue-50/50 px-3 py-2 dark:border-slate-700 dark:bg-blue-900/20">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                          <div>
+                            <p className="text-sm font-bold text-slate-900 dark:text-white">
+                              {selectedCustomer.name}
+                            </p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                              {selectedCustomer.phone}
+                            </p>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Extra Fields */}
-              <div className="grid grid-cols-2 gap-2">
-                <Input
-                  placeholder="Reference No."
-                  className="h-8 text-xs"
-                  value={referenceNo}
-                  onChange={(e) => setReferenceNo(e.target.value)}
-                />
-                <Input
-                  placeholder="Remarks / Note"
-                  className="h-8 text-xs"
-                  value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {cart.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-slate-300 opacity-50 space-y-4">
-                  <ShoppingCart className="h-20 w-20" />
-                  <p className="font-bold uppercase tracking-widest text-xs">
-                    Waiting for items...
-                  </p>
-                </div>
-              ) : (
-                cart.map((item) => (
-                  <div
-                    key={item._id}
-                    className="flex gap-4 p-3 bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 group relative shadow-sm hover:shadow-md transition-all"
-                  >
-                    <div className="h-16 w-16 rounded-xl bg-slate-50 dark:bg-slate-900 flex items-center justify-center overflow-hidden shrink-0 border dark:border-slate-700">
-                      {item.image ? (
-                        <img
-                          src={`http://localhost:5000${item.image}`}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Package className="h-6 w-6 text-slate-300" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0 space-y-1">
-                      <div className="flex justify-between items-start">
-                        <div className="min-w-0">
-                          <p className="font-black text-[13px] uppercase truncate pr-2 leading-tight">
-                            {item.name}
-                          </p>
-                          <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
-                            Rs. {item.salePrice} / unit
-                          </p>
                         </div>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full"
-                          onClick={() => removeFromCart(item._id)}
+                          className="h-8 w-8 shrink-0"
+                          onClick={() => setSelectedCustomer(null)}
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <X className="h-4 w-4" />
                         </Button>
                       </div>
-                      <div className="flex justify-between items-center pt-1">
-                        <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 rounded-lg p-0.5 border shadow-inner">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-5 w-5 rounded-md"
-                            onClick={() =>
-                              updateQuantity(item._id, item.quantity - 1)
-                            }
-                          >
-                            -
-                          </Button>
-                          <span className="text-[11px] font-black w-4 text-center">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-5 w-5 rounded-md"
-                            onClick={() =>
-                              updateQuantity(item._id, item.quantity + 1)
-                            }
-                          >
-                            +
-                          </Button>
-                        </div>
-                        <p className="font-black text-[15px] text-blue-600 dark:text-blue-400 tracking-tight italic">
-                          Rs. {(item.salePrice * item.quantity).toFixed(0)}
-                        </p>
+                    ) : (
+                      <div className="relative">
+                        <Input
+                          id="customer-search"
+                          placeholder="Search by phone..."
+                          className="h-10 dark:bg-slate-800/50 dark:border-slate-700"
+                          value={customerSearch}
+                          onChange={(e) => {
+                            setCustomerSearch(e.target.value);
+                            if (e.target.value.length > 2)
+                              fetchCustomers(e.target.value);
+                          }}
+                        />
+                        {customers.length > 0 && (
+                          <div className="absolute top-full left-0 z-50 mt-1 max-h-40 w-full overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
+                            {customers.map((c) => (
+                              <button
+                                key={c._id}
+                                type="button"
+                                className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700"
+                                onClick={() => handleCustomerSelection(c)}
+                              >
+                                <p className="font-medium text-slate-900 dark:text-white">
+                                  {c.name}
+                                </p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                  {c.phone}
+                                </p>
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="referenceNo"
+                        className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+                      >
+                        Reference No.
+                      </Label>
+                      <Input
+                        id="referenceNo"
+                        placeholder="Optional"
+                        className="h-9 dark:bg-slate-800/50 dark:border-slate-700"
+                        value={referenceNo}
+                        onChange={(e) => setReferenceNo(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="remarks"
+                        className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+                      >
+                        Remarks
+                      </Label>
+                      <Input
+                        id="remarks"
+                        placeholder="Optional"
+                        className="h-9 dark:bg-slate-800/50 dark:border-slate-700"
+                        value={remarks}
+                        onChange={(e) => setRemarks(e.target.value)}
+                      />
                     </div>
                   </div>
-                ))
-              )}
-            </div>
+                </CardContent>
+              </Card>
 
-            <div className="p-8 border-t dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 space-y-4 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm font-bold text-slate-500">
-                  <span>SUBTOTAL:</span>
-                  <span>Rs. {subtotal.toFixed(0)}</span>
-                </div>
-                <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-2 rounded-xl border border-slate-100 dark:border-slate-700">
-                  <Label
-                    htmlFor="discount"
-                    className="text-[10px] font-black text-slate-400 uppercase ml-2"
+              {/* Cart card */}
+              <Card className="flex min-h-0 flex-1 flex-col overflow-hidden border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+                <CardHeader className="shrink-0 pb-3">
+                  <CardTitle className="text-base font-bold text-slate-900 dark:text-white">
+                    Cart
+                  </CardTitle>
+                  <CardDescription className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    {cart.length === 0
+                      ? "Add products from the catalog"
+                      : `${cart.length} item(s)`}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="min-h-0 flex-1 overflow-y-auto p-0">
+                  {cart.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 py-12 dark:border-slate-700">
+                      <ShoppingCart className="mb-3 h-12 w-12 text-slate-300 dark:text-slate-600" />
+                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                        No items yet.
+                      </p>
+                      <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                        Tap a product to add to cart.
+                      </p>
+                    </div>
+                  ) : (
+                    <ul className="space-y-3 p-4 pt-0">
+                      {cart.map((item) => (
+                        <li
+                          key={item._id}
+                          className="flex gap-3 rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800/50"
+                        >
+                          <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800">
+                            {item.image ? (
+                              <img
+                                src={`http://localhost:5000${item.image}`}
+                                alt={item.name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center">
+                                <Package className="h-6 w-6 text-slate-300 dark:text-slate-600" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1 space-y-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
+                                {item.name}
+                              </p>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 shrink-0 text-slate-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                                onClick={() => removeFromCart(item._id)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                              Rs. {Number(item.salePrice).toLocaleString()} /
+                              unit
+                            </p>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-7 w-7"
+                                  onClick={() =>
+                                    updateQuantity(item._id, item.quantity - 1)
+                                  }
+                                >
+                                  −
+                                </Button>
+                                <span className="min-w-[1.25rem] text-center text-xs font-bold">
+                                  {item.quantity}
+                                </span>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-7 w-7"
+                                  onClick={() =>
+                                    updateQuantity(item._id, item.quantity + 1)
+                                  }
+                                >
+                                  +
+                                </Button>
+                              </div>
+                              <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                                Rs.{" "}
+                                {(
+                                  item.salePrice * item.quantity
+                                ).toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Summary card */}
+              <Card className="shrink-0 border-slate-200 dark:border-slate-800 dark:bg-slate-900">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-bold text-slate-900 dark:text-white">
+                    Payment summary
+                  </CardTitle>
+                  <CardDescription className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Subtotal, discount and amount received
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Subtotal
+                    </span>
+                    <span className="font-medium text-slate-900 dark:text-white">
+                      Rs. {subtotal.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="discount"
+                      className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+                    >
+                      Discount (Rs.)
+                    </Label>
+                    <Input
+                      id="discount"
+                      type="number"
+                      className="h-10 dark:bg-slate-800/50 dark:border-slate-700"
+                      value={discount}
+                      onChange={(e) => setDiscount(Number(e.target.value))}
+                    />
+                  </div>
+                  <div className="flex items-baseline justify-between border-t border-slate-200 pt-4 dark:border-slate-700">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Grand total
+                    </span>
+                    <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      Rs. {total.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="paid"
+                      className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+                    >
+                      Amount received (PKR)
+                    </Label>
+                    <Input
+                      id="paid"
+                      type="number"
+                      placeholder={total.toString()}
+                      className="h-12 text-lg font-semibold dark:bg-slate-800/50 dark:border-slate-700"
+                      value={paidAmount || ""}
+                      onChange={(e) => setPaidAmount(Number(e.target.value))}
+                    />
+                  </div>
+                  <Button
+                    className="w-full gap-2 bg-blue-600 font-semibold text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+                    size="lg"
+                    disabled={cart.length === 0 || loading}
+                    onClick={handleCheckout}
                   >
-                    Discount (Rs.)
-                  </Label>
-                  <Input
-                    id="discount"
-                    type="number"
-                    className="w-24 h-8 text-right font-black border-none focus-visible:ring-0"
-                    value={discount}
-                    onChange={(e) => setDiscount(Number(e.target.value))}
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-between items-end pt-2">
-                <span className="text-xs font-black text-slate-400 uppercase">
-                  Grand Total:
-                </span>
-                <span className="text-4xl font-black text-blue-600 dark:text-white tracking-tighter italic">
-                  Rs. {total.toFixed(0)}
-                </span>
-              </div>
-
-              <div className="pt-4 space-y-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="paid"
-                    className="text-[10px] font-black text-slate-400 uppercase"
-                  >
-                    Amount Received (PKR)
-                  </Label>
-                  <Input
-                    id="paid"
-                    type="number"
-                    className="w-full h-14 text-center text-3xl font-black rounded-2xl border-2 border-blue-500/20 bg-white dark:bg-slate-900"
-                    placeholder={total.toString()}
-                    value={paidAmount || ""}
-                    onChange={(e) => setPaidAmount(Number(e.target.value))}
-                  />
-                </div>
-                <Button
-                  className="w-full h-16 text-xl font-black uppercase tracking-widest shadow-xl rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  disabled={cart.length === 0 || loading}
-                  onClick={handleCheckout}
-                >
-                  {loading ? "Processing..." : "Complete Sale & Print"}
-                </Button>
-              </div>
+                    {loading ? "Processing..." : "Complete sale & print"}
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
@@ -1073,32 +1499,51 @@ export default function POSPage() {
   function renderModals() {
     return (
       <>
-        {/* Print Options Modal */}
+        {/* Print Options Modal — Advanced Print Controller */}
         {showPrintModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-            <Card className="w-full max-w-2xl shadow-2xl border-none overflow-hidden animate-in zoom-in-95 duration-200">
-              <CardHeader className="bg-slate-900 text-white">
-                <CardTitle className="flex items-center gap-2 text-xl font-black italic tracking-tight">
-                  <Settings2 className="h-6 w-6 text-blue-400" />
-                  ADVANCED PRINT CONTROLLER
-                </CardTitle>
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+            <Card className="w-full max-w-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden rounded-xl animate-in zoom-in-95 duration-200">
+              <CardHeader className="border-b border-slate-200 bg-white dark:bg-slate-900 dark:border-slate-800 px-6 py-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <CardTitle className="flex items-center gap-3 text-lg font-bold text-slate-900 dark:text-white">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/40">
+                        <Settings2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      Advanced Print Controller
+                    </CardTitle>
+                    <CardDescription className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-1">
+                      Configure store header and document type before printing
+                    </CardDescription>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowPrintModal(false)}
+                    className="h-9 w-9 shrink-0 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                    aria-label="Close"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent className="p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="h-6 w-1 bg-blue-600 rounded-full"></div>
-                      <Label className="text-xs font-black uppercase text-slate-400 tracking-widest">
+              <CardContent className="p-6 md:p-8 bg-slate-50/50 dark:bg-slate-900/30">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* 1. Store Branding */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <div className="h-5 w-0.5 rounded-full bg-blue-600" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                         1. Store Branding
-                      </Label>
+                      </span>
                     </div>
-                    <div className="space-y-4 p-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border-2 border-slate-100 dark:border-slate-800">
-                      <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black text-slate-400 uppercase">
+                    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800/50 space-y-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                           Load Header Preset
                         </Label>
                         <select
-                          className="w-full h-11 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold shadow-sm focus:border-blue-500 outline-none px-3"
+                          className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                           onChange={(e) => {
                             const s = stores.find(
                               (st) => st._id === e.target.value,
@@ -1114,8 +1559,8 @@ export default function POSPage() {
                           ))}
                         </select>
                       </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                           Edit Business Identity
                         </Label>
                         <Input
@@ -1126,11 +1571,9 @@ export default function POSPage() {
                               name: e.target.value,
                             })
                           }
-                          className="h-10 font-black border-slate-200"
-                          placeholder="Store Name"
+                          className="h-10 rounded-lg border-slate-200 dark:bg-slate-800 dark:border-slate-600"
+                          placeholder="Store name"
                         />
-                      </div>
-                      <div className="grid grid-cols-1 gap-3">
                         <Input
                           value={selectedPrintStore?.contactNumber || ""}
                           onChange={(e) =>
@@ -1139,8 +1582,8 @@ export default function POSPage() {
                               contactNumber: e.target.value,
                             })
                           }
-                          className="h-10 text-sm font-bold border-slate-200"
-                          placeholder="Contact Number"
+                          className="h-10 rounded-lg border-slate-200 dark:bg-slate-800 dark:border-slate-600"
+                          placeholder="Contact number"
                         />
                         <Input
                           value={selectedPrintStore?.location || ""}
@@ -1150,67 +1593,87 @@ export default function POSPage() {
                               location: e.target.value,
                             })
                           }
-                          className="h-10 text-sm border-slate-200"
-                          placeholder="Business Location"
+                          className="h-10 rounded-lg border-slate-200 dark:bg-slate-800 dark:border-slate-600"
+                          placeholder="Business location"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-8">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="h-6 w-1 bg-blue-600 rounded-full"></div>
-                        <Label className="text-xs font-black uppercase text-slate-400 tracking-widest">
-                          2. Document Mode
-                        </Label>
-                      </div>
-                      <div
-                        className={cn(
-                          "p-5 rounded-2xl border-2 transition-all cursor-pointer group flex items-center justify-between",
-                          !isChallan
-                            ? "border-blue-600 bg-blue-50/50 shadow-md"
-                            : "border-slate-100 hover:border-slate-200",
-                        )}
+                  {/* 2. Document Mode */}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <div className="h-5 w-0.5 rounded-full bg-blue-600" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        2. Document Mode
+                      </span>
+                    </div>
+                    <div className="space-y-3">
+                      <button
+                        type="button"
                         onClick={() => setIsChallan(false)}
+                        className={cn(
+                          "w-full rounded-xl border-2 p-4 text-left transition-all flex items-center justify-between gap-4",
+                          !isChallan
+                            ? "border-blue-600 bg-blue-50 dark:bg-blue-950/40 dark:border-blue-600"
+                            : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-slate-600",
+                        )}
                       >
                         <div>
-                          <span className="font-black text-sm text-slate-800 tracking-tight">
-                            SALES INVOICE
-                          </span>
-                          <p className="text-[10px] text-slate-500 font-bold mt-1">
+                          <p
+                            className={cn(
+                              "font-semibold text-sm",
+                              !isChallan
+                                ? "text-blue-700 dark:text-blue-300"
+                                : "text-slate-900 dark:text-white",
+                            )}
+                          >
+                            Sales Invoice
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                             Include full pricing & financial totals
                           </p>
                         </div>
                         {!isChallan && (
-                          <CheckCircle className="h-6 w-6 text-blue-600" />
+                          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600">
+                            <CheckCircle className="h-3.5 w-3.5 text-white" />
+                          </div>
                         )}
-                      </div>
-                      <div
-                        className={cn(
-                          "p-5 rounded-2xl border-2 transition-all cursor-pointer group flex items-center justify-between",
-                          isChallan
-                            ? "border-orange-600 bg-orange-50/50 shadow-md"
-                            : "border-slate-100 hover:border-slate-200",
-                        )}
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => setIsChallan(true)}
+                        className={cn(
+                          "w-full rounded-xl border-2 p-4 text-left transition-all flex items-center justify-between gap-4",
+                          isChallan
+                            ? "border-orange-600 bg-orange-50 dark:bg-orange-950/40 dark:border-orange-600"
+                            : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-slate-600",
+                        )}
                       >
                         <div>
-                          <span className="font-black text-sm text-slate-800 tracking-tight text-orange-700">
-                            Invoice Without Price
-                          </span>
-                          <p className="text-[10px] text-slate-500 font-bold mt-1">
+                          <p
+                            className={cn(
+                              "font-semibold text-sm",
+                              isChallan
+                                ? "text-orange-700 dark:text-orange-300"
+                                : "text-slate-900 dark:text-white",
+                            )}
+                          >
+                            SALES INVOICE WITHOUT PRICE
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                             Render document without financial data
                           </p>
                         </div>
                         {isChallan && (
-                          <CheckCircle className="h-6 w-6 text-orange-600" />
+                          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-orange-600">
+                            <CheckCircle className="h-3.5 w-3.5 text-white" />
+                          </div>
                         )}
-                      </div>
+                      </button>
                     </div>
-
-                    <div className="p-5 bg-slate-900 text-slate-400 rounded-2xl">
-                      <p className="text-[10px] font-bold leading-relaxed italic">
+                    <div className="rounded-lg bg-slate-800 px-4 py-3 dark:bg-slate-800">
+                      <p className="text-xs text-slate-300 dark:text-slate-400 leading-relaxed">
                         Note: Header overrides are session-based. For permanent
                         changes to store info, visit the Store Management
                         console.
@@ -1219,13 +1682,13 @@ export default function POSPage() {
                   </div>
                 </div>
               </CardContent>
-              <CardFooter className="flex justify-between gap-4 p-8 bg-slate-50 dark:bg-slate-900/80 border-t">
+              <CardFooter className="flex justify-between items-center gap-4 border-t border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
                 <Button
                   variant="ghost"
                   onClick={() => setShowPrintModal(false)}
-                  className="font-black uppercase tracking-widest text-slate-400 hover:text-slate-600"
+                  className="font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800"
                 >
-                  Cancel
+                  Abort
                 </Button>
                 <Button
                   onClick={() => {
@@ -1236,14 +1699,14 @@ export default function POSPage() {
                     setShowPrintModal(false);
                   }}
                   className={cn(
-                    "px-12 h-14 text-base font-black uppercase tracking-[0.2em] shadow-2xl transition-all border-b-4 active:border-b-0 active:translate-y-1 rounded-2xl ring-offset-2 focus:ring-2",
+                    "gap-2 px-6 h-11 font-semibold rounded-lg shadow-sm",
                     isChallan
-                      ? "bg-orange-600 hover:bg-orange-700 border-orange-800 ring-orange-500"
-                      : "bg-blue-600 hover:bg-blue-700 border-blue-800 ring-blue-500",
+                      ? "bg-orange-600 hover:bg-orange-700 text-white"
+                      : "bg-blue-600 hover:bg-blue-700 text-white",
                   )}
                 >
-                  <Printer className="mr-3 h-6 w-6" />
-                  {isChallan ? "Print Invoice" : "Print Invoice"}
+                  <Printer className="h-5 w-5" />
+                  {isChallan ? "Print Challan" : "Print Invoice"}
                 </Button>
               </CardFooter>
             </Card>

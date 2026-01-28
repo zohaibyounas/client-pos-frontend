@@ -376,7 +376,10 @@ export default function DashboardLayout({
             </div>
           </header>
         )}
-        <div className="flex-1 overflow-y-auto">{children}</div>
+        <div className={cn(
+          "flex-1 min-h-0 flex flex-col",
+          pathname === "/dashboard/sales" ? "overflow-hidden" : "overflow-y-auto"
+        )}>{children}</div>
       </main>
     </div>
   );
