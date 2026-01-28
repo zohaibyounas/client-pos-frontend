@@ -22,9 +22,9 @@ interface SummaryBarChartProps {
 const PROJECT_BLUE = "#2563eb"; // tailwind blue-600
 const COLORS = [
   PROJECT_BLUE, // Sales – project blue
-  "#f59e0b",   // Purchases – amber
-  "#ef4444",   // Expenses – red
-  "#10b981",   // Profit – emerald
+  "#f59e0b", // Purchases – amber
+  "#ef4444", // Expenses – red
+  "#10b981", // Profit – emerald
 ];
 
 export default function SummaryBarChart({
@@ -77,7 +77,12 @@ export default function SummaryBarChart({
               border: "none",
               boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
             }}
-            formatter={(value: number) => [`Rs. ${value.toLocaleString()}`, ""]}
+            formatter={(value) => {
+              if (typeof value === "number") {
+                return [`Rs. ${value.toLocaleString()}`, ""];
+              }
+              return ["", ""];
+            }}
             labelFormatter={(label) => label}
           />
           <Bar
